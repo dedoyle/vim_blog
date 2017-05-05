@@ -80,7 +80,6 @@
 
 ```
 
-5. Then generate tags file by running " ctags -R -f d:\tags d:\path\to\my\project\".
-And you can generate tags in vim by pressing ctrl and f12
+5. Then generate tags file by running " ctags -R -f d:\tags d:\path\to\my\project\". And you can generate tags in vim by pressing ctrl and f12
 
 6. open vim and toggle the tagbar, you will see it
