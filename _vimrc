@@ -30,15 +30,27 @@ if has('gui_running')
 endif
 
 " Automatic installation
-if empty(glob('~/vimfiles/autoload/plug.vim'))
-    silent !curl -fLo ~/vimfiles/autoload/plug.vim --create-dirs
-                \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+if s:is_windows
+    if empty(glob('~/vimfiles/autoload/plug.vim'))
+        silent !curl -fLo ~/vimfiles/autoload/plug.vim --create-dirs
+                    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+        autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+    endif
+else
+    if empty(glob('~/.vim/autoload/plug.vim'))
+        silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+                    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+        autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+    endif
 endif
 
 " Use English for anything in vim
 if s:is_windows
     silent exec 'lan mes en_US.UTF-8'
+
+    " vim menu 乱码
+    source $VIMRUNTIME/delmenu.vim
+    source $VIMRUNTIME/menu.vim
 elseif s:is_osx
     silent exec 'language en_US'
 else
@@ -72,7 +84,6 @@ if s:is_windows
         " want to try them first.
         set fileencodings=ucs-bom,utf-8,utf-16le,cp1252,iso-8859-15
     endif
-
 else
     " set default encoding to utf-8
     set encoding=utf-8
@@ -92,7 +103,11 @@ endif
 let isNpmInstalled = executable("npm")
 
 " Specify a directory for Plugins
-call plug#begin('~/vimfiles/Plugged')
+if s:is_windows
+    call plug#begin('~/vimfiles/Plugged')
+else
+    call plug#begin('~/.vim/Plugged')
+endif
 
 
 " Make sure you use single quotes
@@ -139,11 +154,11 @@ Plug 'flazz/vim-colorschemes'
 " I just enable it, with default config,
 " many false positive but still usefull
 Plug 'scrooloose/syntastic'
-" Install jshint and csslint for syntastic
-" Path to jshint if it not installed, then use local installation
+" Install eslint and csslint for syntastic
+" Path to eslint if it not installed, then use local installation
 if isNpmInstalled
-    if !executable('jshint')
-        silent ! echo 'Installing jshint' && npm -g install jshint
+    if !executable('eslint_d')
+        silent ! echo 'Installing eslint_d' && npm -g install eslint_d
     endif
     if !executable('csslint')
         silent ! echo 'Installing csslint' && npm -g install csslint
@@ -169,8 +184,7 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 
 " Nice statusline/ruler for vim
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+Plug 'itchyny/lightline.vim'
 
 " Front end Plugins
 "
@@ -220,7 +234,7 @@ call plug#end()
 " Unite
 
 " Set unite window height
-let g:unite_winheight = 10
+let g:unite_winheight = 15
 
 " Start unite in insert mode by default
 let g:unite_enable_start_insert = 1
@@ -267,29 +281,31 @@ autocmd FileType unite call s:unite_settings()
 function! s:unite_settings()
     " Play nice with supertab
     let b:SuperTabDisabled=1
+    nmap <buffer> <ESC> <Plug>(unite_exit)
     " Enable navigation with control-j and control-k in insert mode
     imap <buffer> <C-j>   <Plug>(unite_select_next_line)
     imap <buffer> <C-k>   <Plug>(unite_select_previous_line)
+
+    nnoremap <silent><buffer><expr> f unite#smart_map('f', unite#do_action('vimfiler'))
+      inoremap <silent><buffer><expr> f unite#smart_map('f', unite#do_action('vimfiler'))
+
+    call unite#filters#matcher_default#use(['matcher_fuzzy'])
+    call unite#filters#sorter_default#use(['sorter_rank'])
+    call unite#custom#source('file_rec,file_rec/async',
+                \ 'ignore_pattern', '(\.idea$|\.tmp|\.cache)')
 endfunction
 
 " ------------------------------
-" vim-airline
-" Colorscheme for airline
+" lightline
 "
-let g:airline_theme='solarized'
-" enable powerline font
-let g:airline_powerline_fonts = 1
-" Set custom left separator
-"let g:airline_left_sep = '▶'
-" Set custom right separator
-"let g:airline_right_sep = '◀'
-" Enable airline for tab-bar
-let g:airline#extensions#tabline#enabled = 1
-" Don't display buffers in tab-bar with single tab
-let g:airline#extensions#tabline#show_buffers = 0
-" Display only filename in tab
-let g:airline#extensions#tabline#fnamemod = ':t'
-
+let g:lightline = {
+            \ 'colorscheme': 'wombat',
+            \ 'component': {
+            \   'readonly': '%{&readonly?"⭤":""}',
+            \ },
+            \ 'separator': { 'left': '⮀', 'right': '⮂' },
+            \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
+            \ }
 
 " ------------------------------
 " neocomplcache
@@ -352,21 +368,6 @@ set completeopt-=preview
 
 " ------------------------------
 " vimfiler
-let g:vimfiler_ignore_pattern = ['^\.git$', '^\.svn$', '^\.idea$',
-            \ '^\.DS_Store$', 'node_modules']
-
-if s:is_windows
-    " Use trashbox.
-    let g:unite_kind_file_use_trashbox = 1
-else
-    " Like Textmate icons.
-    let g:vimfiler_tree_leaf_icon = ' '
-    let g:vimfiler_tree_opened_icon = '▾'
-    let g:vimfiler_tree_closed_icon = '▸'
-    let g:vimfiler_file_icon = '-'
-    let g:vimfiler_readonly_file_icon = '✗'
-    let g:vimfiler_marked_file_icon = '✓'
-endif
 
 call vimfiler#custom#profile('default', 'context', {
             \ 'explorer' : 1,
@@ -384,21 +385,41 @@ call vimfiler#custom#profile('default', 'context', {
             \ 'force_hide' : 0,
             \ })
 
-map <F2> :VimFiler<cr>
+let g:vimfiler_ignore_pattern = ['^\.git$', '^\.svn$', '^\.idea$',
+            \ '^\.DS_Store$', 'node_modules']
+
+" Like Textmate icons.
+let g:vimfiler_tree_leaf_icon = ' '
+let g:vimfiler_restore_alternate_file = 1
+let g:vimfiler_tree_opened_icon = '▼'
+let g:vimfiler_tree_closed_icon = '▷'
+let g:vimfiler_file_icon = '-'
+let g:vimfiler_readonly_file_icon = '✗'
+let g:vimfiler_marked_file_icon = '✓'
+
+autocmd FileType vimfiler setlocal nonumber
+autocmd FileType vimfiler setlocal norelativenumber
+autocmd VimEnter * if !argc() | VimFiler | endif
+
+let g:vimfiler_as_default_explorer = 1
+let g:vimfiler_safe_mode_by_default = 0
+nnoremap <silent> <F2> :<C-u>VimFilerBufferDir -split -simple -no-quit<CR>
+
 
 " ------------------------------
 " Ctags
-let g:tagbar_ctags_bin = 'C:\ctags58\ctags.exe'
+if s:is_windows
+    let g:tagbar_ctags_bin = 'C:\ctags58\ctags.exe'
 
-set tags=d:\tags
-map <C-F12> :!ctags -R -f d:\tags d:\wamp\www\static\javascripts\modules<CR>
+    set tags=d:\tags
+    map <C-F12> :!ctags -R -f d:\tags d:\wamp\www\static\javascripts\modules<CR>
+endif
 
 " ------------------------------
 " Syntastic
 
-" setting up jshint csslint and jscs if available
-let g:syntastic_javascript_jshint_exec = 'jshint'
-"let g:syntastic_javascript_jscs_exec = 'jscs'
+" setting up eslint csslint if available
+let g:syntastic_javascript_eslint_exec = 'eslint_d'
 let g:syntastic_css_csslint_exec= 'csslint'
 
 " Enable autochecks
@@ -408,10 +429,10 @@ let g:syntastic_enable_signs=1
 " For correct works of next/previous error navigation
 let g:syntastic_always_populate_loc_list = 1
 
-" check json files with jshint
+" check json files with eslint
 let g:syntastic_filetype_map = { "json": "javascript", }
 
-let g:syntastic_javascript_checkers = ["jshint"]
+let g:syntastic_javascript_checkers = ["eslint"]
 
 " open quicfix window with all error found
 nmap <silent> <leader>ll :Errors<cr>
@@ -438,7 +459,11 @@ nmap <silent> <leader>tn :TernRename<CR>
 let g:neosnippet#enable_snipmate_compatibility = 1
 
 " Tell Neosnippet about the other snippets
-let g:neosnippet#snippets_directory='~/vimfiles/bundle/vim-snippets/snippets'
+if s:is_windows
+    let g:neosnippet#snippets_directory='~/vimfiles/bundle/vim-snippets/snippets'
+else
+    let g:neosnippet#snippets_directory='~/.vim/bundle/vim-snippets/snippets'
+endif
 
 " Disables standart snippets. We use vim-snippets bundle instea
 let g:neosnippet#disable_runtime_snippets = { '_' : 1 }
@@ -465,6 +490,14 @@ let g:used_javascript_libs = 'jquery,angular,angularuirouter,requirejs,underscor
 set relativenumber
 set number
 
+" set fillchar
+hi VertSplit ctermbg=NONE guibg=NONE
+set fillchars+=vert:│
+
+" hide cmd
+set noshowcmd
+
+
 " Tab related
 set ts=4
 set sw=4
@@ -486,23 +519,42 @@ set fo+=mB
 set lazyredraw
 
 " ------------------------------
-" vim menu 乱码
-source $VIMRUNTIME/delmenu.vim
-source $VIMRUNTIME/menu.vim
+
+" 设置新文件的<EOL>格式
+set fileformat=unix
+" 给出文件的<EOL>格式类型
+set fileformats=unix,dos,mac
 
 " ------------------------------
 " Mapleader
-let mapleader = " "
-let g:mapleader = " "
+let mapleader = "\<Space>"
+let g:mapleader = "\<Space>"
 
 " ------------------------------
 " Folding
-set foldenable
-
-setlocal foldmethod=syntax
-
+"set foldenable
+"setlocal foldmethod=syntax
 " Enable syntax folding in javascript
-let javaScript_fold=1
+"let javaScript_fold=1
+" no fold enable
+set nofoldenable
+
+set showmatch
+set matchtime=0
+set ruler
+
+set showmode
+
+set laststatus=2
+
+" enable mouse in normal and visual mode
+set mouse=nv
+
+" Hide buffers instead of closing them
+set hidden
+
+set ttimeout
+set ttimeoutlen=50
 
 " ------------------------------
 " Search related
@@ -569,6 +621,15 @@ set iskeyword+=-
 " Wildmenu
 " Extended autocmpletion for commands
 set wildmenu
+set wildmode=longest,list,full
+"menuone: show the pupmenu when only one match
+" disable preview scratch window,
+set completeopt=menu,menuone,longest
+" h: 'complete'
+set complete=.,w,b,u,t
+" limit completion menu height
+set pumheight=15
+set wildignorecase
 
 " --------------------------------------------------
 "
@@ -598,38 +659,74 @@ nnoremap <silent> st :<C-u>tabnew<CR>
 nnoremap <silent> so :<C-u>only<CR>
 nnoremap <silent> sq :<C-u>close<CR>
 
+" Tab
+noremap <leader>1 :b1<cr>
+noremap <leader>2 :b2<cr>
+noremap <leader>3 :b3<cr>
+noremap <leader>4 :b4<cr>
+noremap <leader>5 :b5<cr>
+noremap <leader>6 :b6<cr>
+noremap <leader>7 :b7<cr>
+noremap <leader>8 :b8<cr>
+noremap <leader>9 :b9<cr>
+noremap <leader>0 :blast<cr>
+
 
 " --------------------------------------------------
 " Backup
-fu! NewDir(dir_name)
-    if isdirectory(a:dir_name) == 0
-        if s:is_windows
-            :silent call system('mkdir '.a:dir_name)
-        else
-            :silent call system('mkdir -p '.a:dir_name)
-        endif
-    endif
-endfunction
+" autoread
+set autoread
 
-call NewDir($HOME.'\.data\backup')
-call NewDir($HOME.'\.data\swap')
-set backupdir=~\.data\backup
-set directory=~\.data\swap
+" backup
 set backup
-
-if exists("+undofile")
-    call NewDir($HOME.'\.data\undofile')
-    set undodir=~\.data\undofile
-    set undofile
+set undofile
+set undolevels=1000
+let g:data_dir = $HOME . '/.data/'
+let g:backup_dir = g:data_dir . 'backup'
+let g:swap_dir = g:data_dir . 'swap'
+let g:undo_dir = g:data_dir . 'undofile'
+if finddir(g:data_dir) ==# ''
+    silent call mkdir(g:data_dir)
 endif
+if finddir(g:backup_dir) ==# ''
+    silent call mkdir(g:backup_dir)
+endif
+if finddir(g:swap_dir) ==# ''
+    silent call mkdir(g:swap_dir)
+endif
+if finddir(g:undo_dir) ==# ''
+    silent call mkdir(g:undo_dir)
+endif
+unlet g:backup_dir
+unlet g:swap_dir
+unlet g:data_dir
+unlet g:undo_dir
+set undodir=$HOME/.data/undofile
+set backupdir=$HOME/.data/backup
+set directory=$HOME/.data/swap
 
-
-" --------------------------------------------------
-" Misc
+set nowritebackup
+"fu! NewDir(dir_name)
+"    if isdirectory(a:dir_name) == 0
+"        if s:is_windows
+"            :silent call system('mkdir '.a:dir_name)
+"        else
+"            :silent call system('mkdir -p '.a:dir_name)
+"        endif
+"    endif
+"endfunction
 "
-" Open wildmenu
-set wildmenu
-set wildmode=longest,list,full
+"call NewDir($HOME.'\.data\backup')
+""call NewDir($HOME.'\.data\swap')
+"set backupdir=~\.data\backup
+""set directory=~\.data\swap
+"set backup
+
+"if exists("+undofile")
+"    call NewDir($HOME.'\.data\undofile')
+"    set undodir=~\.data\undofile
+"    set undofile
+"endif
 
 
 " --------------------------------------------------
@@ -651,7 +748,6 @@ endif
 " Display options
 
 " Hide showmode
-" Showmode is useless with airline
 set noshowmode
 
 " Show file name in window title
@@ -684,12 +780,11 @@ if has("autocmd")
         :au FocusLost * :wa
 
         " Auto reload vim after your cahange it
-        if s:is_windows
-            au BufWritePost _vimrc source $MYVIMRC | AirlineRefresh
-        else
-            au BufWritePost *.vim source $MYVIMRC | AirlineRefresh
-            au BufWritePost .vimrc source $MYVIMRC | AirlineRefresh
-        endif
+        autocmd bufwritepost $MYVIMRC nested source $MYVIMRC
+
+        " Return to last edit position when opening files (You want this!)
+        au BufReadPost * if line("'\"") > 1 && line("'\"")
+                    \ <= line("$") | exe "normal! g'\"" | endif
 
         " Automatically change the current directory
         au BufEnter * silent! lcd %:p:h
