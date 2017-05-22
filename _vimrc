@@ -51,6 +51,8 @@ if s:is_windows
     " vim menu 乱码
     source $VIMRUNTIME/delmenu.vim
     source $VIMRUNTIME/menu.vim
+
+    exec 'cd ' . fnameescape('d:\wamp\www')
 elseif s:is_osx
     silent exec 'language en_US'
 else
@@ -110,6 +112,12 @@ else
 endif
 
 
+" ------------------------------
+" Mapleader
+noremap <Space> <Nop>
+let mapleader = "\<Space>"
+let g:mapleader = "\<Space>"
+
 " Make sure you use single quotes
 "
 " On-demand loading
@@ -143,8 +151,14 @@ Plug 'Shougo/neomru.vim'
 " Yank history for unite
 Plug 'Shougo/neoyank.vim'
 
+" Tagbar
+Plug 'majutsushi/tagbar'
+
 " Exporlorer
 Plug 'Shougo/vimfiler.vim'
+
+" Powerful shell
+Plug 'Shougo/vimshell.vim'
 
 " Vim colorschemes https://github.com/flazz/vim-colorschemes
 Plug 'flazz/vim-colorschemes'
@@ -154,8 +168,8 @@ Plug 'flazz/vim-colorschemes'
 " I just enable it, with default config,
 " many false positive but still usefull
 Plug 'scrooloose/syntastic'
-" Install eslint and csslint for syntastic
-" Path to eslint if it not installed, then use local installation
+" Install eslint_d and csslint for syntastic
+" TODO: Path to eslint_d if it not installed, then use local installation
 if isNpmInstalled
     if !executable('eslint_d')
         silent ! echo 'Installing eslint_d' && npm -g install eslint_d
@@ -200,8 +214,7 @@ Plug 'mattn/emmet-vim', { 'for':  ['html', 'css', 'less', 'sass'] }
 " HTML5 + inline SVG omnicomplete funtion, indent and syntax for Vim.
 Plug 'othree/html5.vim', { 'for': 'html' }
 
-" Highlights the matching HTML tag when the cursor
-" is positioned on a tag.
+" Highlights the matching HTML tag when the cursor is positioned on a tag.
 Plug 'gregsexton/MatchTag', { 'for': 'html' }
 
 " Automatically add closing tags in html-like formats
@@ -219,6 +232,9 @@ Plug 'elzr/vim-json'
 
 " Improve less syntax highlighting, indenting and autocompletion
 Plug 'groenewege/vim-less', { 'for': 'less' }
+
+" Css color preview
+Plug 'ap/vim-css-color',  { 'for': ['css', 'less'] }
 
 " Add support for taltoad/vim-jadeumarkdown
 Plug 'tpope/vim-markdown', { 'for': 'markdown' }
@@ -268,7 +284,7 @@ nnoremap <silent><leader>m :<C-u>Unite file_mru <CR>
 nnoremap <silent><leader>h :Unite -quick-match -max-multi-lines=2 -start-insert -auto-quit history/yank<CR>
 
 " Quick tab navigation
-nnoremap <silent><leader>' :Unite -quick-match -auto-quit tab<CR>
+nnoremap <silent><leader>' :Unite -quick-match tab<CR>
 
 " Fuzzy find files
 nnoremap <silent><leader>; :Unite file_rec -buffer-name=files -start-insert<CR>
@@ -286,8 +302,8 @@ function! s:unite_settings()
     imap <buffer> <C-j>   <Plug>(unite_select_next_line)
     imap <buffer> <C-k>   <Plug>(unite_select_previous_line)
 
-    nnoremap <silent><buffer><expr> f unite#smart_map('f', unite#do_action('vimfiler'))
-      inoremap <silent><buffer><expr> f unite#smart_map('f', unite#do_action('vimfiler'))
+    "nnoremap <silent><buffer><expr> f unite#smart_map('f', unite#do_action('vimfiler'))
+    "inoremap <silent><buffer><expr> f unite#smart_map('f', unite#do_action('vimfiler'))
 
     call unite#filters#matcher_default#use(['matcher_fuzzy'])
     call unite#filters#sorter_default#use(['sorter_rank'])
@@ -300,12 +316,60 @@ endfunction
 "
 let g:lightline = {
             \ 'colorscheme': 'wombat',
-            \ 'component': {
-            \   'readonly': '%{&readonly?"⭤":""}',
+            \ 'active': {
+            \   'left': [ [ 'mode', 'paste' ], ['readonly', 'filename' ] ],
+            \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
             \ },
-            \ 'separator': { 'left': '⮀', 'right': '⮂' },
-            \ 'subseparator': { 'left': '⮁', 'right': '⮃' }
+            \ 'component_function': {
+            \   'modified': 'LightlineModified',
+            \   'readonly': 'LightlineReadonly',
+            \   'filename': 'LightlineFilename',
+            \   'fileformat': 'LightlineFileformat',
+            \   'filetype': 'LightlineFiletype',
+            \   'fileencoding': 'LightlineFileencoding',
+            \   'mode': 'LightlineMode',
+            \ },
+            \ 'component_expand': {
+            \   'syntastic': 'SyntasticStatuslineFlag',
+            \ },
+            \ 'component_type': {
+            \   'syntastic': 'error',
+            \ },
+            \ 'subseparator': { 'left': '|', 'right': '|' }
             \ }
+
+function! LightlineModified()
+  return &ft =~ 'help\|vimfiler\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+endfunction
+
+function! LightlineReadonly()
+  return &ft !~? 'help\|vimfiler\|gundo' && &readonly ? '⭤' : ''
+endfunction
+
+function! LightlineFilename()
+  return ('' != LightlineReadonly() ? LightlineReadonly() . ' ' : '') .
+        \ (&ft == 'vimfiler' ? vimfiler#get_status_string() :
+        \  &ft == 'unite' ? unite#get_status_string() :
+        \  &ft == 'vimshell' ? vimshell#get_status_string() :
+        \ '' != expand('%:t') ? expand('%:t') : '[No Name]') .
+        \ ('' != LightlineModified() ? ' ' . LightlineModified() : '')
+endfunction
+
+function! LightlineFileformat()
+  return winwidth(0) > 70 ? &fileformat : ''
+endfunction
+
+function! LightlineFiletype()
+  return winwidth(0) > 70 ? (&filetype !=# '' ? &filetype : 'no ft') : ''
+endfunction
+
+function! LightlineFileencoding()
+  return winwidth(0) > 70 ? (&fenc !=# '' ? &fenc : &enc) : ''
+endfunction
+
+function! LightlineMode()
+  return winwidth(0) > 60 ? lightline#mode() : ''
+endfunction
 
 " ------------------------------
 " neocomplcache
@@ -349,7 +413,7 @@ endfunction
 
 inoremap <expr><TAB> CleverTab()
 
-" Undo autocomplete
+" Undo autocomplete (a little weird)
 inoremap <expr><C-e> neocomplcache#undo_completion()
 
 " Enable omni completion.
@@ -366,8 +430,14 @@ inoremap <expr><Down>  neocomplcache#close_popup() . "\<Down>"
 " disable preview in code complete
 set completeopt-=preview
 
+
 " ------------------------------
-" vimfiler
+" Tagbar
+let g:tagbar_left = 1
+nmap <silent> <F2> :TagbarToggle<CR>
+
+" ------------------------------
+" Vimfiler
 
 call vimfiler#custom#profile('default', 'context', {
             \ 'explorer' : 1,
@@ -403,7 +473,7 @@ autocmd VimEnter * if !argc() | VimFiler | endif
 
 let g:vimfiler_as_default_explorer = 1
 let g:vimfiler_safe_mode_by_default = 0
-nnoremap <silent> <F2> :<C-u>VimFilerBufferDir -split -simple -no-quit<CR>
+nnoremap <silent> <F3> :<C-u>VimFilerBufferDir -split -simple -no-quit<CR>
 
 
 " ------------------------------
@@ -412,7 +482,7 @@ if s:is_windows
     let g:tagbar_ctags_bin = 'C:\ctags58\ctags.exe'
 
     set tags=d:\tags
-    map <C-F12> :!ctags -R -f d:\tags d:\wamp\www\static\javascripts\modules<CR>
+"    map <C-F12> :!ctags -R -f d:\tags d:\wamp\www\static\javascripts\modules<CR>
 endif
 
 " ------------------------------
@@ -526,17 +596,7 @@ set fileformat=unix
 set fileformats=unix,dos,mac
 
 " ------------------------------
-" Mapleader
-let mapleader = "\<Space>"
-let g:mapleader = "\<Space>"
-
-" ------------------------------
-" Folding
-"set foldenable
-"setlocal foldmethod=syntax
-" Enable syntax folding in javascript
-"let javaScript_fold=1
-" no fold enable
+" No fold enable
 set nofoldenable
 
 set showmatch
@@ -571,7 +631,7 @@ set smartcase
 set incsearch
 
 " Disable higlighting search result on Enter key
-nnoremap <silent> <cr> :nohlsearch<cr>
+nnoremap <silent> <leader>hl :nohlsearch<cr>
 
 " Show matching brackets
 set showmatch
@@ -706,27 +766,6 @@ set backupdir=$HOME/.data/backup
 set directory=$HOME/.data/swap
 
 set nowritebackup
-"fu! NewDir(dir_name)
-"    if isdirectory(a:dir_name) == 0
-"        if s:is_windows
-"            :silent call system('mkdir '.a:dir_name)
-"        else
-"            :silent call system('mkdir -p '.a:dir_name)
-"        endif
-"    endif
-"endfunction
-"
-"call NewDir($HOME.'\.data\backup')
-""call NewDir($HOME.'\.data\swap')
-"set backupdir=~\.data\backup
-""set directory=~\.data\swap
-"set backup
-
-"if exists("+undofile")
-"    call NewDir($HOME.'\.data\undofile')
-"    set undodir=~\.data\undofile
-"    set undofile
-"endif
 
 
 " --------------------------------------------------
@@ -737,7 +776,7 @@ colorscheme material
 
 " Ignore compiled files
 set wildignore=*.o,*~,*.pyc
-if has('win16') || has('win32') || has('win64')
+if s:is_windows
     set wildignore+=*/.git/*,*/.svn/*,*/.hg/*,*/.svn/*,*/.DS_Store
 else
     set wildignore+=.git\*,.hg\*,.svn\*,.svn\*
