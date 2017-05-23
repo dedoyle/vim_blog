@@ -5,7 +5,7 @@ set nocompatible
 "
 let s:is_osx = has('macunix')
 
-"let s:is_linux = has('unix') && !has('macunix') && !has('win32unix')
+let s:is_linux = has('unix') && !has('macunix') && !has('win32unix')
 
 let s:is_windows = has('win16') || has('win32') || has('win64')
 " --------------------------------------------------
@@ -198,7 +198,7 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-surround'
 
 " Nice statusline/ruler for vim
-Plug 'itchyny/lightline.vim'
+Plug 'vim-airline/vim-airline' | Plug 'vim-airline/vim-airline-themes'
 
 " Front end Plugins
 "
@@ -311,65 +311,118 @@ function! s:unite_settings()
                 \ 'ignore_pattern', '(\.idea$|\.tmp|\.cache)')
 endfunction
 
+
+
 " ------------------------------
-" lightline
-"
-let g:lightline = {
-            \ 'colorscheme': 'wombat',
-            \ 'active': {
-            \   'left': [ [ 'mode', 'paste' ], ['readonly', 'filename' ] ],
-            \   'right': [ [ 'syntastic', 'lineinfo' ], ['percent'], [ 'fileformat', 'fileencoding', 'filetype' ] ]
-            \ },
-            \ 'component_function': {
-            \   'modified': 'LightlineModified',
-            \   'readonly': 'LightlineReadonly',
-            \   'filename': 'LightlineFilename',
-            \   'fileformat': 'LightlineFileformat',
-            \   'filetype': 'LightlineFiletype',
-            \   'fileencoding': 'LightlineFileencoding',
-            \   'mode': 'LightlineMode',
-            \ },
-            \ 'component_expand': {
-            \   'syntastic': 'SyntasticStatuslineFlag',
-            \ },
-            \ 'component_type': {
-            \   'syntastic': 'error',
-            \ },
-            \ 'subseparator': { 'left': '|', 'right': '|' }
-            \ }
+" Airline
+let g:airline_powerline_fonts = 1
+let g:airline_theme='wombat'
+" Tagbar
+let g:airline#extensions#tagbar#enabled = 1
+let g:airline#extensions#tagbar#flags = 'f'
+" Syntastic
+let g:airline#extensions#syntastic#enabled = 1
+" Tabline
+let g:airline#extensions#tabline#enabled=1
+" Display only filename in tab
+let g:airline#extensions#tabline#formatter = 'foo'
 
-function! LightlineModified()
-  return &ft =~ 'help\|vimfiler\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+nmap <leader>1 <Plug>AirlineSelectTab1
+nmap <leader>2 <Plug>AirlineSelectTab2
+nmap <leader>3 <Plug>AirlineSelectTab3
+nmap <leader>4 <Plug>AirlineSelectTab4
+nmap <leader>5 <Plug>AirlineSelectTab5
+nmap <leader>6 <Plug>AirlineSelectTab6
+nmap <leader>7 <Plug>AirlineSelectTab7
+nmap <leader>8 <Plug>AirlineSelectTab8
+nmap <leader>9 <Plug>AirlineSelectTab9
+nmap <leader>- <Plug>AirlineSelectPrevTab
+nmap <leader>= <Plug>AirlineSelectNextTab
+let g:airline#extensions#tabline#buffer_idx_format = {
+        \ '0': '0 ',
+        \ '1': '1 ',
+        \ '2': '2 ',
+        \ '3': '3 ',
+        \ '4': '4 ',
+        \ '5': '5 ',
+        \ '6': '6 ',
+        \ '7': '7 ',
+        \ '8': '8 ',
+        \ '9': '9 '
+        \}
+
+function! s:close_current_buffer() abort
+  let buffers = get(g:, '_spacevim_list_buffers', [])
+  let bn = bufnr('%')
+  let index = index(buffers, bn)
+  if index != -1
+    if index == 0
+      if len(buffers) > 1
+        exe 'b' . buffers[1]
+        exe 'bd' . bn
+      else
+        exe 'bd ' . bn
+      endif
+    elseif index > 0
+      if index + 1 == len(buffers)
+        exe 'b' . buffers[index - 1]
+        exe 'bd' . bn
+      else
+        exe 'b' . buffers[index + 1]
+        exe 'bd' . bn
+      endif
+    endif
+  endif
 endfunction
 
-function! LightlineReadonly()
-  return &ft !~? 'help\|vimfiler\|gundo' && &readonly ? '⭤' : ''
-endfunction
+" delete current windows
+nnoremap <silent> sq :<C-u>call s:close_current_buffer()<CR>
 
-function! LightlineFilename()
-  return ('' != LightlineReadonly() ? LightlineReadonly() . ' ' : '') .
-        \ (&ft == 'vimfiler' ? vimfiler#get_status_string() :
-        \  &ft == 'unite' ? unite#get_status_string() :
-        \  &ft == 'vimshell' ? vimshell#get_status_string() :
-        \ '' != expand('%:t') ? expand('%:t') : '[No Name]') .
-        \ ('' != LightlineModified() ? ' ' . LightlineModified() : '')
-endfunction
 
-function! LightlineFileformat()
-  return winwidth(0) > 70 ? &fileformat : ''
-endfunction
+" ------------------------------
+" Vimfiler
 
-function! LightlineFiletype()
-  return winwidth(0) > 70 ? (&filetype !=# '' ? &filetype : 'no ft') : ''
-endfunction
+call vimfiler#custom#profile('default', 'context', {
+            \ 'explorer' : 1,
+            \ 'winwidth' : 30,
+            \ 'winminwidth' : 30,
+            \ 'toggle' : 1,
+            \ 'auto_expand': 1,
+            \ 'direction' : 'rightbelow',
+            \ 'parent': 0,
+            \ 'status' : 1,
+            \ 'safe' : 0,
+            \ 'split' : 1,
+            \ 'hidden': 1,
+            \ 'no_quit' : 1,
+            \ 'force_hide' : 0,
+            \ })
 
-function! LightlineFileencoding()
-  return winwidth(0) > 70 ? (&fenc !=# '' ? &fenc : &enc) : ''
-endfunction
+let g:vimfiler_as_default_explorer = 1
+let g:vimfiler_safe_mode_by_default = 0
+let g:vimfiler_ignore_pattern = ['^\.git$', '^\.svn$', '^\.idea$',
+            \ '^\.DS_Store$', 'node_modules']
 
-function! LightlineMode()
-  return winwidth(0) > 60 ? lightline#mode() : ''
-endfunction
+" Like Textmate icons.
+let g:vimfiler_tree_leaf_icon = ' '
+let g:vimfiler_restore_alternate_file = 1
+let g:vimfiler_tree_opened_icon = '▼'
+let g:vimfiler_tree_closed_icon = '▷'
+let g:vimfiler_file_icon = '-'
+let g:vimfiler_readonly_file_icon = '✗'
+let g:vimfiler_marked_file_icon = '✓'
+
+if s:is_windows
+    " Use trashbox.
+    " Windows only and require latest vimproc.
+    let g:unite_kind_file_use_trashbox = 1
+endif
+
+autocmd FileType vimfiler setlocal nonumber
+autocmd FileType vimfiler setlocal norelativenumber
+
+nnoremap <silent> <F3> :<C-u>VimFilerBufferDir -split -simple -no-quit<CR>
 
 " ------------------------------
 " neocomplcache
@@ -430,51 +483,10 @@ inoremap <expr><Down>  neocomplcache#close_popup() . "\<Down>"
 " disable preview in code complete
 set completeopt-=preview
 
-
 " ------------------------------
 " Tagbar
 let g:tagbar_left = 1
 nmap <silent> <F2> :TagbarToggle<CR>
-
-" ------------------------------
-" Vimfiler
-
-call vimfiler#custom#profile('default', 'context', {
-            \ 'explorer' : 1,
-            \ 'winwidth' : 30,
-            \ 'winminwidth' : 30,
-            \ 'toggle' : 1,
-            \ 'auto_expand': 1,
-            \ 'direction' : 'rightbelow',
-            \ 'parent': 0,
-            \ 'status' : 1,
-            \ 'safe' : 0,
-            \ 'split' : 1,
-            \ 'hidden': 1,
-            \ 'no_quit' : 1,
-            \ 'force_hide' : 0,
-            \ })
-
-let g:vimfiler_ignore_pattern = ['^\.git$', '^\.svn$', '^\.idea$',
-            \ '^\.DS_Store$', 'node_modules']
-
-" Like Textmate icons.
-let g:vimfiler_tree_leaf_icon = ' '
-let g:vimfiler_restore_alternate_file = 1
-let g:vimfiler_tree_opened_icon = '▼'
-let g:vimfiler_tree_closed_icon = '▷'
-let g:vimfiler_file_icon = '-'
-let g:vimfiler_readonly_file_icon = '✗'
-let g:vimfiler_marked_file_icon = '✓'
-
-autocmd FileType vimfiler setlocal nonumber
-autocmd FileType vimfiler setlocal norelativenumber
-autocmd VimEnter * if !argc() | VimFiler | endif
-
-let g:vimfiler_as_default_explorer = 1
-let g:vimfiler_safe_mode_by_default = 0
-nnoremap <silent> <F3> :<C-u>VimFilerBufferDir -split -simple -no-quit<CR>
-
 
 " ------------------------------
 " Ctags
@@ -510,6 +522,53 @@ nmap <silent> <leader>ll :Errors<cr>
 nmap <silent> [ :lprev<cr>
 " next syntastic error
 nmap <silent> ] :lnext<cr>
+
+" Set up the arrays to ignore for later
+if !exists('g:syntastic_html_tidy_ignore_errors')
+    let g:syntastic_html_tidy_ignore_errors = []
+endif
+
+if !exists('g:syntastic_html_tidy_blocklevel_tags')
+    let g:syntastic_html_tidy_blocklevel_tags = []
+endif
+
+" Try to use HTML5 Tidy for better checking?
+if s:is_linux
+    let g:syntastic_html_tidy_exec = '/usr/local/bin/tidy5'
+endif
+" AP: honestly can't remember if this helps or not
+" installed with homebrew locally
+
+" Ignore ionic tags in HTML syntax checking
+" See http://stackoverflow.com/questions/30366621
+" ignore errors about Ionic tags
+let g:syntastic_html_tidy_ignore_errors += [
+      \ "<ion-",
+      \ "discarding unexpected </ion-"]
+
+" Angular's attributes confuse HTML Tidy
+let g:syntastic_html_tidy_ignore_errors += [
+      \ " proprietary attribute \"ng-"]
+
+" Angular UI-Router attributes confuse HTML Tidy
+let g:syntastic_html_tidy_ignore_errors += [
+      \ " proprietary attribute \"ui-sref"]
+
+" Angular in particular often makes 'empty' blocks, so ignore
+" this error. We might improve how we do this though.
+" See also https://github.com/scrooloose/syntastic/wiki/HTML:---tidy
+" specifically g:syntastic_html_tidy_empty_tags
+let g:syntastic_html_tidy_ignore_errors += ["trimming empty "]
+
+" Angular ignores
+let g:syntastic_html_tidy_blocklevel_tags += [
+      \ 'ng-include',
+      \ 'ng-form'
+      \ ]
+
+" Angular UI-router ignores
+let g:syntastic_html_tidy_ignore_errors += [
+      \ " proprietary attribute \"ui-sref"]
 
 " ------------------------------
 " Tern_for_vim
@@ -611,7 +670,10 @@ set laststatus=2
 set mouse=nv
 
 " Hide buffers instead of closing them
+" Allow buffer switching without saving
 set hidden
+" always show tabline
+"set showtabline=2
 
 set ttimeout
 set ttimeoutlen=50
@@ -717,19 +779,19 @@ nnoremap <silent> sg :<C-u>vsplit<CR>
 nnoremap <silent> st :<C-u>tabnew<CR>
 " Close other windows
 nnoremap <silent> so :<C-u>only<CR>
-nnoremap <silent> sq :<C-u>close<CR>
+"nnoremap <silent> sq :<C-u>close<CR>
 
 " Tab
-noremap <leader>1 :b1<cr>
-noremap <leader>2 :b2<cr>
-noremap <leader>3 :b3<cr>
-noremap <leader>4 :b4<cr>
-noremap <leader>5 :b5<cr>
-noremap <leader>6 :b6<cr>
-noremap <leader>7 :b7<cr>
-noremap <leader>8 :b8<cr>
-noremap <leader>9 :b9<cr>
-noremap <leader>0 :blast<cr>
+"noremap <leader>1 :b1<cr>
+"noremap <leader>2 :b2<cr>
+"noremap <leader>3 :b3<cr>
+"noremap <leader>4 :b4<cr>
+"noremap <leader>5 :b5<cr>
+"noremap <leader>6 :b6<cr>
+"noremap <leader>7 :b7<cr>
+"noremap <leader>8 :b8<cr>
+"noremap <leader>9 :b9<cr>
+"noremap <leader>0 :blast<cr>
 
 
 " --------------------------------------------------
@@ -777,9 +839,9 @@ colorscheme material
 " Ignore compiled files
 set wildignore=*.o,*~,*.pyc
 if s:is_windows
-    set wildignore+=*/.git/*,*/.svn/*,*/.hg/*,*/.svn/*,*/.DS_Store
+    set wildignore+=*/.git/*,*/.svn/*,*/.hg/*,*/.svn/*,*/.DS_Store,*.min.*
 else
-    set wildignore+=.git\*,.hg\*,.svn\*,.svn\*
+    set wildignore+=.git\*,.hg\*,.svn\*,.svn\*,*.min.*
 endif
 
 
@@ -819,7 +881,7 @@ if has("autocmd")
         :au FocusLost * :wa
 
         " Auto reload vim after your cahange it
-        autocmd bufwritepost $MYVIMRC nested source $MYVIMRC
+        au Bufwritepost $MYVIMRC nested source $MYVIMRC | AirlineRefresh
 
         " Return to last edit position when opening files (You want this!)
         au BufReadPost * if line("'\"") > 1 && line("'\"")
