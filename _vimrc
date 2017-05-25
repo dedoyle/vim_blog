@@ -160,6 +160,9 @@ Plug 'Shougo/vimfiler.vim'
 " Powerful shell
 Plug 'Shougo/vimshell.vim'
 
+" The silver searcher
+Plug 'rking/ag.vim'
+
 " Vim colorschemes https://github.com/flazz/vim-colorschemes
 Plug 'flazz/vim-colorschemes'
 
@@ -268,14 +271,32 @@ let g:unite_source_history_yank_enable = 1
 " Make samll limit for yank history,
 let g:unite_source_history_yank_limit = 40
 
+let g:unite_source_rec_max_cache_files = 99999
+
 " Grep options Default for unite + supress error messages
 let g:unite_source_grep_default_opts = '-iRHns'
 
-let g:unite_source_rec_max_cache_files = 99999
-
+" Using ag as recursive command.
 let g:unite_source_rec_async_command =
             \ ['ag', '--follow', '--nocolor', '--nogroup',
             \  '--hidden', '-g', '']
+
+" For ack.
+if executable('ag')
+    let g:unite_source_grep_command = 'ag'
+    let g:unite_source_grep_default_opts =
+                \ '-i --vimgrep --hidden --ignore ' .
+                \ '''.hg'' --ignore ''.svn'' --ignore ''.git'' --ignore ''.idea'''
+    let g:unite_source_grep_recursive_opt = ''
+elseif executable('ack')
+    let g:unite_source_grep_command = 'ack'
+    let g:unite_source_grep_default_opts = '-i --no-heading --no-color -a -H'
+    let g:unite_source_grep_recursive_opt = ''
+elseif executable('ack-grep')
+    let g:unite_source_grep_command = 'ack-grep'
+    let g:unite_source_grep_default_opts = '-i --no-heading --no-color -a -H'
+    let g:unite_source_grep_recursive_opt = ''
+endif
 
 " Hotkey for open window with most recent files
 nnoremap <silent><leader>m :<C-u>Unite file_mru <CR>
@@ -290,7 +311,7 @@ nnoremap <silent><leader>' :Unite -quick-match tab<CR>
 nnoremap <silent><leader>; :Unite file_rec -buffer-name=files -start-insert<CR>
 
 " Unite-grep
-nnoremap <silent><leader>/ :Unite grep:. -no-start-insert -no-quit -keep-focus -wrap<CR>
+nnoremap <silent><leader>/ :Unite -no-empty -no-resize grep<CR>
 
 " Custom mappings for the unite buffer
 autocmd FileType unite call s:unite_settings()
@@ -307,8 +328,16 @@ function! s:unite_settings()
 
     call unite#filters#matcher_default#use(['matcher_fuzzy'])
     call unite#filters#sorter_default#use(['sorter_rank'])
-    call unite#custom#source('file_rec,file_rec/async',
-                \ 'ignore_pattern', '(\.idea$|\.tmp|\.cache)')
+    call unite#custom_source('file_rec,file_rec/async,file_mru,file,buffer,grep',
+                \ 'ignore_pattern', join([
+                \ '\.git/',
+                \ '\.svn/',
+                \ '\.idea/',
+                \ 'tmp/',
+                \ 'node_modules/',
+                \ 'bower_components/',
+                \ 'build/',
+                \ ], '\|'))
 endfunction
 
 
@@ -319,15 +348,28 @@ let g:airline_powerline_fonts = 1
 let g:airline_theme='wombat'
 " Tagbar
 let g:airline#extensions#tagbar#enabled = 1
-let g:airline#extensions#tagbar#flags = 'f'
 " Syntastic
 let g:airline#extensions#syntastic#enabled = 1
 " Tabline
 let g:airline#extensions#tabline#enabled=1
 " Display only filename in tab
-let g:airline#extensions#tabline#formatter = 'foo'
+let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
 
 let g:airline#extensions#tabline#buffer_idx_mode = 1
+
+let g:airline#extensions#tabline#buffer_idx_format = {
+            \ '0': '0 ',
+            \ '1': '1 ',
+            \ '2': '2 ',
+            \ '3': '3 ',
+            \ '4': '4 ',
+            \ '5': '5 ',
+            \ '6': '6 ',
+            \ '7': '7 ',
+            \ '8': '8 ',
+            \ '9': '9 '
+            \}
+
 nmap <leader>1 <Plug>AirlineSelectTab1
 nmap <leader>2 <Plug>AirlineSelectTab2
 nmap <leader>3 <Plug>AirlineSelectTab3
@@ -339,45 +381,10 @@ nmap <leader>8 <Plug>AirlineSelectTab8
 nmap <leader>9 <Plug>AirlineSelectTab9
 nmap <leader>- <Plug>AirlineSelectPrevTab
 nmap <leader>= <Plug>AirlineSelectNextTab
-let g:airline#extensions#tabline#buffer_idx_format = {
-        \ '0': '0 ',
-        \ '1': '1 ',
-        \ '2': '2 ',
-        \ '3': '3 ',
-        \ '4': '4 ',
-        \ '5': '5 ',
-        \ '6': '6 ',
-        \ '7': '7 ',
-        \ '8': '8 ',
-        \ '9': '9 '
-        \}
-
-function! s:close_current_buffer() abort
-  let buffers = get(g:, '_spacevim_list_buffers', [])
-  let bn = bufnr('%')
-  let index = index(buffers, bn)
-  if index != -1
-    if index == 0
-      if len(buffers) > 1
-        exe 'b' . buffers[1]
-        exe 'bd' . bn
-      else
-        exe 'bd ' . bn
-      endif
-    elseif index > 0
-      if index + 1 == len(buffers)
-        exe 'b' . buffers[index - 1]
-        exe 'bd' . bn
-      else
-        exe 'b' . buffers[index + 1]
-        exe 'bd' . bn
-      endif
-    endif
-  endif
-endfunction
 
 " delete current windows
-nnoremap <silent> sq :<C-u>call s:close_current_buffer()<CR>
+nnoremap <silent> sq :<C-u>bd<CR>
+"nnoremap <silent> sq :<C-u>call s:close_current_buffer()<CR>
 
 
 " ------------------------------
@@ -494,7 +501,7 @@ if s:is_windows
     let g:tagbar_ctags_bin = 'C:\ctags58\ctags.exe'
 
     set tags=d:\tags
-"    map <C-F12> :!ctags -R -f d:\tags d:\wamp\www\static\javascripts\modules<CR>
+    "    map <C-F12> :!ctags -R -f d:\tags d:\wamp\www\static\javascripts\modules<CR>
 endif
 
 " ------------------------------
@@ -543,16 +550,16 @@ endif
 " See http://stackoverflow.com/questions/30366621
 " ignore errors about Ionic tags
 let g:syntastic_html_tidy_ignore_errors += [
-      \ "<ion-",
-      \ "discarding unexpected </ion-"]
+            \ "<ion-",
+            \ "discarding unexpected </ion-"]
 
 " Angular's attributes confuse HTML Tidy
 let g:syntastic_html_tidy_ignore_errors += [
-      \ " proprietary attribute \"ng-"]
+            \ " proprietary attribute \"ng-"]
 
 " Angular UI-Router attributes confuse HTML Tidy
 let g:syntastic_html_tidy_ignore_errors += [
-      \ " proprietary attribute \"ui-sref"]
+            \ " proprietary attribute \"ui-sref"]
 
 " Angular in particular often makes 'empty' blocks, so ignore
 " this error. We might improve how we do this though.
@@ -562,13 +569,13 @@ let g:syntastic_html_tidy_ignore_errors += ["trimming empty "]
 
 " Angular ignores
 let g:syntastic_html_tidy_blocklevel_tags += [
-      \ 'ng-include',
-      \ 'ng-form'
-      \ ]
+            \ 'ng-include',
+            \ 'ng-form'
+            \ ]
 
 " Angular UI-router ignores
 let g:syntastic_html_tidy_ignore_errors += [
-      \ " proprietary attribute \"ui-sref"]
+            \ " proprietary attribute \"ui-sref"]
 
 " ------------------------------
 " Tern_for_vim
@@ -656,7 +663,7 @@ set fileformats=unix,dos,mac
 
 " ------------------------------
 " No fold enable
-set nofoldenable
+set foldmethod=indent
 
 set showmatch
 set matchtime=0
@@ -672,8 +679,6 @@ set mouse=nv
 " Hide buffers instead of closing them
 " Allow buffer switching without saving
 set hidden
-" always show tabline
-"set showtabline=2
 
 set ttimeout
 set ttimeoutlen=50
@@ -834,7 +839,7 @@ set nowritebackup
 " Theme
 "
 set background=dark
-colorscheme material
+colorscheme materialbox
 
 " Ignore compiled files
 set wildignore=*.o,*~,*.pyc
