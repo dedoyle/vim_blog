@@ -53,9 +53,13 @@ Open Gvim and run the command `:PlugInstall`
 ### Install Prerequisites
 
 git: For downloading and updating plugins
+
 lua: For Vimfiler
+
 python2/3: Support job and part of plugins. Recommend to install both
+
 vim/gvim: Vim's program
+
 [DejaVu Sans Mono for PowerLine](https://github.com/wsdjeg/DotFiles/blob/master/fonts/DejaVu%20Sans%20Mono%20for%20Powerline.ttf): For airline
 
 ### Check prerequisites
