@@ -618,6 +618,11 @@ nmap ga <Plug>(EasyAlign)
 " Javascript libraries syntax
 let g:used_javascript_libs = 'jquery,angular,angularuirouter,requirejs,underscore'
 
+" ------------------------------
+" Markdown
+" Disable folding for 
+let g:vim_markdown_folding_disabled = 1
+
 
 " --------------------------------------------------
 " Basic
