@@ -86,12 +86,13 @@ Open vim and run the command `:PlugInstall`
 ## FAQ
 
 Q: vimproc cannot compile on windows?
+
 A: You can download it from [Shougo/vimproc.vim](https://github.com/Shougo/vimproc.vim/releases),
 and put it in C:\Users\Administrator\vimfiles\plugged\vimproc.vim\lib
 
-Q: How to check whether my vim has +lua and +python feature on windows?
-A: Firstly, use :version to check out. Normally you'll see +lua/dyn,
-+python/dyn and +python3/dyn
+Q: How to check whether my vim has '+lua and +python' feature on windows?
+
+A: Firstly, use :version to check out. Normally you'll see `+lua/dyn, +python/dyn and +python3/dyn`
 
 Secondly, check whether your Lua and python2/3 really works by two command:
 `echo has('lua'), echo has('python3')` and `echo has('python2')`
@@ -100,9 +101,10 @@ Secondly, check whether your Lua and python2/3 really works by two command:
 - Python3 returns: 1
 - Python returns: 1
 
-**Notice: echo has('python2') and echo has('python3'), only one of them returns 1 instead of returning 0 at the same time.This depends on vim.**
+**Notice: `echo has('python2') and echo has('python3')`, only one of them returns 1 instead of returning 0 at the same time.This depends on vim.**
 
-Q: How to check whether my vim has +lua and +python feature on Linux?
+Q: How to check whether my vim has `+lua and +python` feature on Linux?
+
 A: Firstly, use vim --version | grep -E 'lua|python' to check out
 
 Secondly, check whether you Lua and python2/3 really works by two command:
@@ -112,4 +114,4 @@ Secondly, check whether you Lua and python2/3 really works by two command:
 - Python3 returns: 1
 - Python returns: 1
 
-**Notice: echo has('python2') and echo has('python3'), both of them could return 1 instead of returning 0**
+**Notice: `echo has('python2') and echo has('python3')`, both of them could return 1 instead of returning 0**
