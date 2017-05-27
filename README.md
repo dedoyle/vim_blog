@@ -1,7 +1,5 @@
 # Vimrc for the font-end development
 
-## vimrc
-
 This configuration is well suited for the front-end development.
 And can be used on Windows and Linux.
 It includes a ton of useful plugins, color schemes and configurations.

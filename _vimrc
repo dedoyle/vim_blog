@@ -281,20 +281,39 @@ let g:unite_source_rec_async_command =
             \ ['ag', '--follow', '--nocolor', '--nogroup',
             \  '--hidden', '-g', '']
 
-" For ack.
-if executable('ag')
+if executable('hw')
+    " Use hw (highway)
+    " https://github.com/tkengo/highway
+    let g:unite_source_grep_command = 'hw'
+    let g:unite_source_grep_default_opts = '--no-group --no-color'
+    let g:unite_source_grep_recursive_opt = ''
+elseif executable('ag')
+    " Use ag (the silver searcher)
+    " https://github.com/ggreer/the_silver_searcher
     let g:unite_source_grep_command = 'ag'
     let g:unite_source_grep_default_opts =
-                \ '-i --vimgrep --hidden --ignore ' .
-                \ '''.hg'' --ignore ''.svn'' --ignore ''.git'' --ignore ''.idea'''
+                \ '-i --vimgrep --follow --line-numbers --nocolor ' .
+                \ '--nogroup --hidden --ignore ' .
+                \ '''.hg'' --ignore ''.svn'' --ignore ' .
+                \ '''.git'' --ignore ''**.min.*'''
+    let g:unite_source_grep_recursive_opt = ''
+elseif executable('pt')
+    " Use pt (the platinum searcher)
+    " https://github.com/monochromegane/the_platinum_searcher
+    let g:unite_source_grep_command = 'pt'
+    let g:unite_source_grep_default_opts = '--nogroup --nocolor'
+    let g:unite_source_grep_recursive_opt = ''
+elseif executable('ack-grep')
+    " Use ack
+    " http://beyondgrep.com/
+    let g:unite_source_grep_command = 'ack-grep'
+    let g:unite_source_grep_default_opts =
+                \ '-i --no-heading --no-color -k -H'
     let g:unite_source_grep_recursive_opt = ''
 elseif executable('ack')
     let g:unite_source_grep_command = 'ack'
-    let g:unite_source_grep_default_opts = '-i --no-heading --no-color -a -H'
-    let g:unite_source_grep_recursive_opt = ''
-elseif executable('ack-grep')
-    let g:unite_source_grep_command = 'ack-grep'
-    let g:unite_source_grep_default_opts = '-i --no-heading --no-color -a -H'
+    let g:unite_source_grep_default_opts = '-i --no-heading' .
+                \ ' --no-color -k -H'
     let g:unite_source_grep_recursive_opt = ''
 endif
 
@@ -323,8 +342,6 @@ function! s:unite_settings()
     imap <buffer> <C-j>   <Plug>(unite_select_next_line)
     imap <buffer> <C-k>   <Plug>(unite_select_previous_line)
 
-    "nnoremap <silent><buffer><expr> f unite#smart_map('f', unite#do_action('vimfiler'))
-    "inoremap <silent><buffer><expr> f unite#smart_map('f', unite#do_action('vimfiler'))
 
     call unite#filters#matcher_default#use(['matcher_fuzzy'])
     call unite#filters#sorter_default#use(['sorter_rank'])
@@ -337,6 +354,7 @@ function! s:unite_settings()
                 \ 'node_modules/',
                 \ 'bower_components/',
                 \ 'build/',
+                \ '**/.min.*/',
                 \ ], '\|'))
 endfunction
 
@@ -353,7 +371,7 @@ let g:airline#extensions#syntastic#enabled = 1
 " Tabline
 let g:airline#extensions#tabline#enabled=1
 " Display only filename in tab
-let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
+let g:airline#extensions#tabline#formatter = 'unique_tail'
 
 let g:airline#extensions#tabline#buffer_idx_mode = 1
 
@@ -384,20 +402,22 @@ nmap <leader>= <Plug>AirlineSelectNextTab
 
 " delete current windows
 nnoremap <silent> sq :<C-u>bd<CR>
-"nnoremap <silent> sq :<C-u>call s:close_current_buffer()<CR>
 
 
 " ------------------------------
 " Vimfiler
 
+let g:vimfiler_as_default_explorer = 1
 call vimfiler#custom#profile('default', 'context', {
             \ 'explorer' : 1,
             \ 'winwidth' : 30,
             \ 'winminwidth' : 30,
             \ 'toggle' : 1,
+            \ 'columns' : 'type',
             \ 'auto_expand': 1,
             \ 'direction' : 'rightbelow',
             \ 'parent': 0,
+            \ 'explorer_columns' : 'type',
             \ 'status' : 1,
             \ 'safe' : 0,
             \ 'split' : 1,
@@ -406,7 +426,6 @@ call vimfiler#custom#profile('default', 'context', {
             \ 'force_hide' : 0,
             \ })
 
-let g:vimfiler_as_default_explorer = 1
 let g:vimfiler_safe_mode_by_default = 0
 let g:vimfiler_ignore_pattern = ['^\.git$', '^\.svn$', '^\.idea$',
             \ '^\.DS_Store$', 'node_modules']
@@ -620,7 +639,7 @@ let g:used_javascript_libs = 'jquery,angular,angularuirouter,requirejs,underscor
 
 " ------------------------------
 " Markdown
-" Disable folding for 
+" Disable folding for
 let g:vim_markdown_folding_disabled = 1
 
 
