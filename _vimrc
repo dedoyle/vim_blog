@@ -52,7 +52,7 @@ if s:is_windows
     source $VIMRUNTIME/delmenu.vim
     source $VIMRUNTIME/menu.vim
 
-    exec 'cd ' . fnameescape('d:\wamp\www')
+    "exec 'cd ' . fnameescape('d:\wamp\www')
 elseif s:is_osx
     silent exec 'language en_US'
 else
@@ -157,9 +157,6 @@ Plug 'majutsushi/tagbar'
 " Exporlorer
 Plug 'Shougo/vimfiler.vim'
 
-" Powerful shell
-Plug 'Shougo/vimshell.vim'
-
 " The silver searcher
 Plug 'rking/ag.vim'
 
@@ -192,9 +189,6 @@ Plug 'tpope/vim-repeat'
 " Add usefull hotkey for operation with surroundings
 " cs{what}{towhat} - change surroundings symbols to another
 " ds{what} - remove them
-" ys - add a surrounding
-" yS - add a surrounding and place the surrounded text on a new line + indent
-" it
 " yss - add a surrounding to the whole line
 " ySs/ySS - add a surrounding to the whole line, place it on a new line +
 " indent it
@@ -330,7 +324,7 @@ nnoremap <silent><leader>' :Unite -quick-match tab<CR>
 nnoremap <silent><leader>; :Unite file_rec -buffer-name=files -start-insert<CR>
 
 " Unite-grep
-nnoremap <silent><leader>/ :Unite -no-empty -no-resize grep<CR>
+nnoremap <silent><leader>/ :Unite -no-empty -no-quit -no-resize grep<CR>
 
 " Custom mappings for the unite buffer
 autocmd FileType unite call s:unite_settings()
@@ -920,7 +914,7 @@ if has("autocmd")
         au BufEnter * silent! lcd %:p:h
 
         " Js beautify
-        au FileType javascript noremap <buffer>  <c-f> :%!js-beautify -j -q -B -f -<cr>
+        au FileType javascript noremap <buffer>  <c-f> :%!js-beautify -q -f -<cr>
         " for html
         au FileType html noremap <buffer> <c-f> :%!html-beautify -I -q -f -<cr>
         " for css or less
