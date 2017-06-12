@@ -157,6 +157,9 @@ Plug 'majutsushi/tagbar'
 " Exporlorer
 Plug 'Shougo/vimfiler.vim'
 
+" Undo Tree
+Plug 'mbbill/undotree'
+
 " The silver searcher
 Plug 'rking/ag.vim'
 
@@ -315,13 +318,13 @@ endif
 nnoremap <silent><leader>m :<C-u>Unite file_mru <CR>
 
 " Hotkey for open history window
-nnoremap <silent><leader>h :Unite -quick-match -max-multi-lines=2 -start-insert -auto-quit history/yank<CR>
+nnoremap <silent><leader>h :Unite -quick-match -max-multi-lines=2 -start-insert history/yank<CR>
 
 " Quick tab navigation
 nnoremap <silent><leader>' :Unite -quick-match tab<CR>
 
 " Fuzzy find files
-nnoremap <silent><leader>; :Unite file_rec -buffer-name=files -start-insert<CR>
+nnoremap <silent><leader>; :Unite -buffer-name=files -start-insert file_rec/async:!<CR>
 
 " Unite-grep
 nnoremap <silent><leader>/ :Unite -no-empty -no-quit -no-resize grep<CR>
@@ -443,6 +446,10 @@ autocmd FileType vimfiler setlocal nonumber
 autocmd FileType vimfiler setlocal norelativenumber
 
 nnoremap <silent> <F3> :<C-u>VimFilerBufferDir -split -simple -no-quit<CR>
+
+" ------------------------------
+"  Undo Tree
+nnoremap <silent> <F5> :UndotreeToggle<CR>
 
 " ------------------------------
 " neocomplcache
@@ -752,8 +759,8 @@ vmap <Leader>P "+P
 " ------------------------------
 " Replace
 " type S, then type what you're looking for, a /, and what to replace it with
-nmap S :%s/<C-R><C-W>\>//g<LEFT><LEFT>
-vmap S :s/<C-R><C-W>\>//g<LEFT><LEFT>
+nmap <c-r> :%s/<C-R><C-W>\>//gc<LEFT><LEFT>
+vmap <c-r> :s/<C-R><C-W>\>//gc<LEFT><LEFT>
 
 " ------------------------------
 " Auto reload changed files
@@ -784,6 +791,9 @@ map 0 ^
 " Set 7 lines to the cursor
 set so=7
 
+" Hightlighting that moves with the cursor
+set cursorline
+
 " Treat lone lines as break lines
 map j gj
 map k gk
@@ -803,18 +813,6 @@ nnoremap <silent> st :<C-u>tabnew<CR>
 " Close other windows
 nnoremap <silent> so :<C-u>only<CR>
 "nnoremap <silent> sq :<C-u>close<CR>
-
-" Tab
-"noremap <leader>1 :b1<cr>
-"noremap <leader>2 :b2<cr>
-"noremap <leader>3 :b3<cr>
-"noremap <leader>4 :b4<cr>
-"noremap <leader>5 :b5<cr>
-"noremap <leader>6 :b6<cr>
-"noremap <leader>7 :b7<cr>
-"noremap <leader>8 :b8<cr>
-"noremap <leader>9 :b9<cr>
-"noremap <leader>0 :blast<cr>
 
 
 " --------------------------------------------------
@@ -862,9 +860,9 @@ colorscheme materialbox
 " Ignore compiled files
 set wildignore=*.o,*~,*.pyc
 if s:is_windows
-    set wildignore+=*/.git/*,*/.svn/*,*/.hg/*,*/.svn/*,*/.DS_Store,*.min.*
+    set wildignore+=*/.git/*,*/.svn/*,*/.idea/*,*/.hg/*,*/.svn/*,*/.DS_Store,*.min.*
 else
-    set wildignore+=.git\*,.hg\*,.svn\*,.svn\*,*.min.*
+    set wildignore+=.git\*,.hg\*,.svn\*,.idea\*,.svn\*,*.min.*
 endif
 
 
