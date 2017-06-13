@@ -407,8 +407,8 @@ nnoremap <silent> sq :<C-u>bd<CR>
 let g:vimfiler_as_default_explorer = 1
 call vimfiler#custom#profile('default', 'context', {
             \ 'explorer' : 1,
-            \ 'winwidth' : 30,
-            \ 'winminwidth' : 30,
+            \ 'winwidth' : 40,
+            \ 'winminwidth' : 40,
             \ 'toggle' : 1,
             \ 'columns' : 'type',
             \ 'auto_expand': 1,
@@ -728,6 +728,9 @@ nnoremap <silent> <leader>hl :nohlsearch<cr>
 " Show matching brackets
 set showmatch
 
+" Avoiding the Esc key
+imap jk <Esc>
+
 
 " --------------------------------------------------
 " Edit
@@ -759,8 +762,8 @@ vmap <Leader>P "+P
 " ------------------------------
 " Replace
 " type S, then type what you're looking for, a /, and what to replace it with
-nmap <c-r> :%s/<C-R><C-W>\>//gc<LEFT><LEFT>
-vmap <c-r> :s/<C-R><C-W>\>//gc<LEFT><LEFT>
+nmap <c-r> :%s/<C-R><C-W>\>//gc<LEFT><LEFT><LEFT>
+vmap <c-r> :s/<C-R><C-W>\>//gc<LEFT><LEFT><LEFT>
 
 " ------------------------------
 " Auto reload changed files
