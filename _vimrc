@@ -149,10 +149,10 @@ Plug 'Raimondi/delimitMate'
 Plug 'Shougo/neomru.vim'
 
 " Yank history for unite
-Plug 'Shougo/neoyank.vim'
+"Plug 'Shougo/neoyank.vim'
 
 " Tagbar
-Plug 'majutsushi/tagbar'
+"Plug 'majutsushi/tagbar'
 
 " Exporlorer
 Plug 'Shougo/vimfiler.vim'
@@ -195,7 +195,7 @@ Plug 'tpope/vim-repeat'
 " yss - add a surrounding to the whole line
 " ySs/ySS - add a surrounding to the whole line, place it on a new line +
 " indent it
-Plug 'tpope/vim-surround'
+"Plug 'tpope/vim-surround'
 
 " Nice statusline/ruler for vim
 Plug 'vim-airline/vim-airline' | Plug 'vim-airline/vim-airline-themes'
@@ -263,10 +263,10 @@ let g:unite_split_rule = 'botright'
 let g:unite_source_file_mru_limit = 100
 
 " Enable history for yanks
-let g:unite_source_history_yank_enable = 1
+"let g:unite_source_history_yank_enable = 1
 
 " Make samll limit for yank history,
-let g:unite_source_history_yank_limit = 40
+"let g:unite_source_history_yank_limit = 40
 
 let g:unite_source_rec_max_cache_files = 99999
 
@@ -318,10 +318,10 @@ endif
 nnoremap <silent><leader>m :<C-u>Unite file_mru <CR>
 
 " Hotkey for open history window
-nnoremap <silent><leader>h :Unite -quick-match -max-multi-lines=2 -start-insert history/yank<CR>
+"nnoremap <silent><leader>h :Unite -quick-match -max-multi-lines=2 -start-insert history/yank<CR>
 
 " Quick tab navigation
-nnoremap <silent><leader>' :Unite -quick-match tab<CR>
+"nnoremap <silent><leader>' :Unite -quick-match tab<CR>
 
 " Fuzzy find files
 nnoremap <silent><leader>; :Unite -buffer-name=files -start-insert file_rec/async:!<CR>
@@ -362,7 +362,7 @@ endfunction
 let g:airline_powerline_fonts = 1
 let g:airline_theme='wombat'
 " Tagbar
-let g:airline#extensions#tagbar#enabled = 1
+"let g:airline#extensions#tagbar#enabled = 1
 " Syntastic
 let g:airline#extensions#syntastic#enabled = 1
 " Tabline
@@ -512,17 +512,17 @@ set completeopt-=preview
 
 " ------------------------------
 " Tagbar
-let g:tagbar_left = 1
-nmap <silent> <F2> :TagbarToggle<CR>
+"let g:tagbar_left = 1
+"nmap <silent> <F2> :TagbarToggle<CR>
 
 " ------------------------------
 " Ctags
-if s:is_windows
-    let g:tagbar_ctags_bin = 'C:\ctags58\ctags.exe'
-
-    set tags=d:\tags
-    "    map <C-F12> :!ctags -R -f d:\tags d:\wamp\www\static\javascripts\modules<CR>
-endif
+"if s:is_windows
+"    let g:tagbar_ctags_bin = 'C:\ctags58\ctags.exe'
+"
+"    set tags=d:\tags
+"    "    map <C-F12> :!ctags -R -f d:\tags d:\wamp\www\static\javascripts\modules<CR>
+"endif
 
 " ------------------------------
 " Syntastic
@@ -729,7 +729,7 @@ nnoremap <silent> <leader>hl :nohlsearch<cr>
 set showmatch
 
 " Avoiding the Esc key
-imap jk <Esc>
+imap jj <Esc>
 
 
 " --------------------------------------------------
