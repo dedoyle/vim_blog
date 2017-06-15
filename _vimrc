@@ -84,7 +84,7 @@ if s:is_windows
         " fallback into cp1252 instead of eg. iso-8859-15.
         " Newer Windows files might contain utf-8 or utf-16 LE so we might
         " want to try them first.
-        set fileencodings=ucs-bom,utf-8,utf-16le,cp1252,iso-8859-15
+        "set fileencodings=ucs-bom,utf-8,utf-16le,cp1252,iso-8859-15
     endif
 else
     " set default encoding to utf-8
@@ -454,6 +454,8 @@ nnoremap <silent> <F5> :UndotreeToggle<CR>
 " ------------------------------
 " neocomplcache
 
+" Disable AutoComplPop.
+let g:acp_enableAtStartup = 0
 " Enable NeocomplCache at startup
 let g:neocomplcache_enable_at_startup = 1
 
@@ -616,12 +618,12 @@ let g:neosnippet#enable_snipmate_compatibility = 1
 
 " Tell Neosnippet about the other snippets
 if s:is_windows
-    let g:neosnippet#snippets_directory='~/vimfiles/bundle/vim-snippets/snippets'
+    let g:neosnippet#snippets_directory='~/vimfiles/plugged/vim-snippets/snippets'
 else
-    let g:neosnippet#snippets_directory='~/.vim/bundle/vim-snippets/snippets'
+    let g:neosnippet#snippets_directory='~/.vim/plugged/vim-snippets/snippets'
 endif
 
-" Disables standart snippets. We use vim-snippets bundle instea
+" Disables standart snippets. We use vim-snippets bundle instead
 let g:neosnippet#disable_runtime_snippets = { '_' : 1 }
 
 " Expand snippet and jimp to next snippet field on Enter key.
