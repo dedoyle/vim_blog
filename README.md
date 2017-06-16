@@ -1,4 +1,4 @@
-# Vimrc for the font-end development
+# [Vimrc for the font-end development](https://github.com/dedoyle/vim_blog)
 
 This configuration is well suited for the front-end development.
 And can be used on Windows and Linux.
