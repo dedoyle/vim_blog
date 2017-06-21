@@ -166,6 +166,11 @@ Plug 'rking/ag.vim'
 " Vim colorschemes https://github.com/flazz/vim-colorschemes
 Plug 'flazz/vim-colorschemes'
 
+" prettier https://github.com/mitermayer/vim-prettier
+Plug 'mitermayer/vim-prettier', {
+            \ 'do': 'yarn install',
+            \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss'] }
+
 " Add code static check on write
 " need to be properly configured.
 " I just enable it, with default config,
@@ -216,9 +221,6 @@ Plug 'othree/html5.vim', { 'for': 'html' }
 
 " Highlights the matching HTML tag when the cursor is positioned on a tag.
 Plug 'gregsexton/MatchTag', { 'for': 'html' }
-
-" Automatically add closing tags in html-like formats
-Plug 'alvan/vim-closetag', { 'for': 'html' }
 
 " Improve javascritp syntax higlighting, needed for good folding,
 " and good-looking javascritp code
@@ -361,8 +363,34 @@ endfunction
 " Airline
 let g:airline_powerline_fonts = 1
 let g:airline_theme='wombat'
+
+" ------------------------------
 " Tagbar
 "let g:airline#extensions#tagbar#enabled = 1
+
+" ------------------------------
+" Prettier
+" Disable auto formatting of files that have @format tag
+let g:prettier#autoformat = 0
+
+" max line lengh that prettier will wrap on
+let g:prettier#config#print_width = 80
+
+" number of spaces per indentation level
+let g:prettier#config#tab_width = 4
+
+" use tabs over spaces
+let g:prettier#config#use_tabs = 'false'
+
+" print semicolons
+let g:prettier#config#semi = 'true'
+
+" single quotes over double quotes
+let g:prettier#config#single_quote = 'true'
+
+nnoremap <silent><c-f> :Prettier<CR>
+
+" ------------------------------
 " Syntastic
 let g:airline#extensions#syntastic#enabled = 1
 " Tabline
@@ -730,9 +758,6 @@ nnoremap <silent> <leader>hl :nohlsearch<cr>
 " Show matching brackets
 set showmatch
 
-" Avoiding the Esc key
-imap jj <Esc>
-
 
 " --------------------------------------------------
 " Edit
@@ -915,13 +940,5 @@ if has("autocmd")
 
         " Automatically change the current directory
         au BufEnter * silent! lcd %:p:h
-
-        " Js beautify
-        au FileType javascript noremap <buffer>  <c-f> :%!js-beautify -q -f -<cr>
-        " for html
-        au FileType html noremap <buffer> <c-f> :%!html-beautify -I -q -f -<cr>
-        " for css or less
-        au FileType css noremap <buffer> <c-f> :%!css-beautify -L -N -q -f -<cr>
-        " Group end
     augroup END
 endif
