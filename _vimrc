@@ -388,6 +388,9 @@ let g:prettier#config#semi = 'true'
 " single quotes over double quotes
 let g:prettier#config#single_quote = 'true'
 
+" none|es5|all
+let g:prettier#config#trailing_comma = 'none'
+
 nnoremap <silent><c-f> :Prettier<CR>
 
 " ------------------------------
