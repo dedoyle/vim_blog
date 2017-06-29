@@ -1,350 +1,312 @@
 ```
-snippet :f
-options head
-  ${1:#:method_name}: function(${2:#:attribute}) {
-    ${0:TARGET}
-  }
+// vim-snippets
 
-snippet function
-abbr    func
-options word
-  function ${1:#:function_name}(${2:#:argument}) {
-    ${0:TARGET}
-  }
+# enter keycode
+snippet enter
+    var keyCode = (window.event) ? e.which : e.keyCode;
+    if (keyCode === 13) {
+       \$timeout.cancel(inputTimer);
+        inputTimer =\$timeout(function () {
 
-snippet function2
-abbr    func2
-options head
-  function ${1:function_name}(${2:argument}) {
-    ${0:TARGET}
-  }
-
-snippet proto
-options head
-  ${1:#:class_name}.prototype.${2:#:method_name} = function(${3:#:first_argument}) {
-    ${0:TARGET}
-  };
-
-
-snippet f
-options word
-  function(${1}) { ${0:TARGET} };
-
-snippet if
-options head
-  if (${1:true}) {
-    ${0:TARGET}
-  }
-
-snippet if-else
-abbr ife
-options head
-  if (${1:#:condition}) {
-    ${2:TARGET}
-  } else {
-    ${3}
-  }
-
-snippet for
-options head
-  for (var ${1:i} = 0; $1 < ${2:#:Things}.length; ++$1) {
-    ${0:TARGET}
-  }
-
-snippet forin
-options head
-  for (var ${1:i} in ${2:#:Things}) {
-    ${0:TARGET}
-  }
-
-snippet while
-options head
-  while (${1:true}) {
-    ${0:TARGET}
-  }
-
-snippet switch
-options head
-  switch (${1:#:var}) {
-    case ${2:#:val}:
-      ${0:TARGET}
-      break;
-  }
-
-snippet try
-options head
-  try {
-    ${1:TARGET}
-  } catch (${2:e}) {
-    ${3}
-  }
-
-snippet try_finally
-options head
-  try {
-    ${1:TARGET}
-  } catch (${2:e}) {
-    ${3}
-  } finally {
-    ${4}
-  }
-
-
-snippet key-value
-abbr :,
-options word
-  ${1:#:value_name}: ${0:#:value},
-
-#snippet key
-#options word
-#  ${1:#:key}: "${2:#:value}"}${3:, }
-
-snippet setTimeout-function
-options head
-  setTimeout(function() { ${0} }, ${1:10});
-
-snippet debugger
-alias db
-options head
-  debugger;
-
-snippet console-log
-alias cl
-options head
-  console.log(${0:TARGET});
-
-snippet console-trace
-alias ct
-options head
-  console.trace();
-
-snippet console-error
-alias ce
-options head
-  console.error(${0:TARGET});
-
-snippet console-warn
-alias cw
-options head
-  console.warn(${0:TARGET});
-
-snippet console-info
-alias ci
-options head
-  console.info(${0:TARGET});
-
-snippet iife
-options head
-  (function(${1}) {
-    'use strict';
-    ${0:TARGET}
-  })(${2});
-
-snippet js
-options head
-  JSON.stringify(${1:TARGET}, ${2:null}, ${3:2});
-
-snippet jsc
-options head
-  console.log(JSON.stringify(${1:TARGET}, ${2:null}, ${3:2}));
-
-snippet     class
-abbr        class {...}
-options     head
-  class ${1:#:NAME} {
-    constructor(${2:#:ARGS}) {
-      ${0:TARGET}
+        }, 50);
     }
-  }
+# controller
+snippet ctrl
+    angular
+        .module('app')
+        .controller('HomeController', HomeController);
 
-snippet     class-extends
-abbr        class extends {...}
-options     head
-  class ${1:#:NAME} extends ${2:#:SuperClass} {
-    constructor(${3:#:ARGS}) {
-      ${0:TARGET}
-    }
-  }
+    HomeController.\$inject = ['\$rootScope', '\$scope', 'CommonService'];
 
-snippet     static
-options     head
-  static ${1:#:NAME}(${2:#:ARGS}) {
-    ${0:TARGET}
-  }
-
-snippet     set
-options     head
-  set ${1:#:NAME}(${2:#:ARGS}) {
-    ${0:TARGET}
-  }
-
-snippet     get
-options     head
-  get ${1:#:NAME}() {
-    ${0:TARGET}
-  }
-
-snippet     import
-abbr        import { member, ... } from "module-name";
-options     head
-  import { ${1:MEMBERS} } from "${0:TARGET}";
-
-snippet     import-default
-abbr        import defaultMember from "module-name";
-options     head
-  import ${1:defaultMember} from "${0:TARGET}";
-
-snippet     import-all
-abbr        import * as NAME from "...";
-options     head
-  import * as ${1:NAME} from "${0:TARGET}";
-
-snippet     import-default-member
-abbr        import defaultMember, { member, ... } from "module-name";
-options     head
-  import ${1:defaultMember}, { ${2:MEMBERS} } from "${0:TARGET}";
-
-snippet ngcontroller
-options head
-  (function() {
-      'use strict';
-
-      angular
-          .module('${1:module}')
-          .controller('${2:Controller}Ctrl', $2Ctrl);
-
-      $2Ctrl.$inject = ['${3:dependencies}'];
-      function $2Controller($3) {
+    function HomeController(\$rootScope, \$scope, CommonService) {
         var ctrl, cleanListener1, cleanListener2;
 
-          ctrl = {
-            list      : [],
+        ctrl = {
+            list: [],
             pageConfig: {type: 1, limit: 10, current_page: 1},
-            message   : null,
-            search    : search
-          };
+            condition: {},
+            message: null,
+            search: search
+        };
 
-          window.getInitData = function getInitData() {
-            getData().then(function () {
-                $('.mask').hide();
-            })['catch'](function (msg) {
-                $('.mask').hide();
-                showErrorMsg(msg);
-            });
+        (function getInitData() {
+            getData()['catch'](showErrorMsg);
 
-            cleanListener1 = $rootScope.$on('pageChanged', function () {
+            cleanListener1 = \$rootScope.\$on('pageChanged', function () {
                 getData()['catch'](showErrorMsg);
             });
 
-            cleanListener2 = $rootScope.$on('inputWrong', function (e, msg) {
+            cleanListener2 = \$rootScope.\$on('inputWrong', function (e, msg) {
                 showErrorMsg(msg);
             });
 
-            // 去除$rootScope.$on() listeners
-            $scope.$on('$destroy', function () {
+            // remove \$rootScope.\$on() listeners
+           \$scope.\$on('\$destroy', function () {
                 cleanListener1();
                 cleanListener2();
             });
-        };
-
-        window.getInitData();
+        })();
 
         return ctrl;
 
         function getData() {
-            return CommonService.getInitData().then(function (data) {
-                ctrl.pageConfig.maxentries = data.total;
-                ctrl.list = data.rows;
+            var condition = {};
+
+            return CommonService.getData(condition).then(function (data) {
+                ctrl.pageConfig.maxentries = data.pagination.total;
+                ctrl.list = data.pagination.rows;
+
+                hideMask();
+
+                return ctrl.list;
             });
         }
 
         function search() {
             ctrl.pageConfig.current_page = 1;
+
+            showMask();
+
             getData()['catch'](showErrorMsg);
         }
 
+        function showMask() {
+            \$('.mask').show();
+        }
+
+        function hideMask() {
+            \$('.mask').hide();
+        }
+
         function showErrorMsg(msg) {
+            hideMask();
             ctrl.message = {error: msg};
         }
-      }
-  })();
+    }
+# Bootstrap dialog
+snippet bdjs
+   \$('#upload-modal')
+        .on('shown.bs.modal', function () {
+            ${1}
+        })
+        .on('hide.bs.modal', function () {
+        });
+# WebUploader
+snippet upjs
+    function initUploader() {
+        var\$fileList  =\$('#file-list'),
+           \$uploadBtn =\$('#ctlBtn');
 
-snippet ngdirective
-options head
-  (function() {
-      'use strict';
+        fileLoader = WebUploader.create({
+            auto        : false,
+            fileVal     : 'file',
+            swf         : '/static/libs/webuploader/0.1.5/webuploader.swf',
+            server      : '',
+            pick        : {
+                id      : '#file-picker',
+                multiple: false
+            },
+            fileNumLimit: 1
+        });
 
-      angular
-          .module('${1:module}')
-          .directive('${2:directive}', $2);
+        fileLoader.on('fileQueued', function (file) {
+           \$fileList.empty().append('<div id="' + file.id + '" class="item">' +
+                '<h4 class="info">' + file.name + '</h4>' +
+                '</div>');
+            ctrl.hasFile = true;
+           \$scope.\$digest();
+        });
 
-      $2.$inject = ['${3:dependencies}'];
-      function $2(${3:dependencies}) {
-          // Usage:
-          //
-          // Creates:
-          //
-          var directive = {
-              bindToController: true,
-              controller: ${4:Controller},
-              controllerAs: '${5:vm}',
-              link: link,
-              restrict: 'A',
-              scope: {
-              }
-          };
-          return directive;
+        fileLoader.on('beforeFileQueued', function () {
+            fileLoader.reset();
+        });
 
-          function link(scope, element, attrs) {
-          }
-      }
+        fileLoader.on('uploadBeforeSend', function (block, data) {
+        });
 
-      /* @ngInject */
-      function $4() {
+        fileLoader.on('uploadSuccess', function (file, ret) {
+            ctrl.hasFile = false;
+            fileLoader.reset();
+           \$scope.\$digest();
+        });
 
-      }
-  })();
+        fileLoader.on('uploadError', function (file, reason) {
+           \$('.uploader-list .info').addClass('info-error').text(reason);
+        });
 
-snippet ngfactory
-options head
-  (function() {
-      'use strict';
+       \$uploadBtn.on('click', function () {
+            fileLoader.upload();
+        });
+    }
 
-      angular
-          .module('${1:module}')
-          .factory('${2:factory}', $2);
+# bootstrap timepicker
+snippet bdtp
+    var d = new Date();
+    d.setDate(d.getDate() - 1);
 
-      /* @ngInject */
-      function $2(${3:dependencies}) {
-          var service = {
-              ${4:func}: $4
-          };
-          return service;
+    $('.form_datetime').datetimepicker({
+        format: 'yyyy-mm-dd',
+        forceParse: true,
+        language: 'zh-CN',
+        autoclose: true,
+        minView: 'month',
+        endDate: d
+    });
 
-          ////////////////
+# hightcharts
+snippet hightcharts
+    require(['highcharts'], function() {
+        Highcharts.setOptions({
+            colors: colors,
+            title: false,
+            credits: false,
+            legend: false,
+            exporting: false
+        });
+    });
 
-          function $4() {
-          }
-      }
-  })();
+# 折线图（普通）
+snippet linechart
+    $('#peak-value').highcharts({
+        xAxis: {
+            title: {
+                text: '时间'
+            },
+            categories: statistic.time_line
+        },
+        yAxis: {
+            title: {
+                text: '次数'
+            }
+        },
+        plotOptions: {
+            line: {
+                dataLabels: {
+                    enabled: true // 开启数据标签
+                },
+                enableMouseTracking: false // 关闭鼠标跟踪，对应的提示框、点击事件会失效
+            }
+        },
+        series: [
+            {
+                data: statistic.nums
+            }
+        ]
+    });
 
-snippet ngfilter
-options head
-  (function() {
-      'use strict';
+# 折线图（附带信息）
+snippet lineinfo
+    $('#container').highcharts({
+        xAxis: {
+            categories: ['Jan', 'Feb', 'Mar']
+        },
+        tooltip: {
+            formatter: function() {
+                var s = '';
+                $.each(this.points, function(point) {
+                    info = this.point.info;
+                    $.each(info, function(idx, val) {
+                        s +=
+                            '<b>' +
+                            val.name +
+                            '</b>' +
+                            ': ' +
+                            val.value +
+                            '<br/>';
+                    });
+                });
+                return s;
+            },
+            shared: true
+        },
+        series: [
+            {
+                data: [
+                    {
+                        info: [
+                            {
+                                name: '数学',
+                                value: 4
+                            },
+                            {
+                                name: '语文',
+                                value: 9
+                            }
+                        ],
+                        y: 29.9
+                    },
+                    {
+                        info: [
+                            {
+                                name: '数学',
+                                value: 1
+                            },
+                            {
+                                name: '语文',
+                                value: 9
+                            }
+                        ],
+                        y: 52
+                    }
+                ]
+            }
+        ]
+    });
 
-      angular
-          .module('${1:module}')
-          .filter('${2:filter}', $2);
-
-      function $2() {
-          return $2Filter;
-
-          ////////////////
-          function $2Filter(${3:params}) {
-              return $3;
-          };
-      }
-
-  })();
+# 柱状图
+snippet columnchart
+    $('#container').highcharts({
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: '月平均降雨量'
+        },
+        subtitle: {
+            text: '数据来源: WorldClimate.com'
+        },
+        xAxis: {
+            categories: [
+                '一月',
+                '二月',
+                '三月',
+                '四月',
+                '五月'
+            ],
+            crosshair: true
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: '降雨量 (mm)'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: '东京',
+            data: [49.9, 71.5, 106.4, 129.2, 144.0]
+        }, {
+            name: '纽约',
+            data: [83.6, 78.8, 98.5, 93.4, 106.0]
+        }, {
+            name: '伦敦',
+            data: [48.9, 38.8, 39.3, 41.4, 47.0]
+        }, {
+            name: '柏林',
+            data: [42.4, 33.2, 34.5, 39.7, 52.6]
+        }]
+    });
 ```
