@@ -126,8 +126,15 @@ Plug 'Shougo/vimproc.vim', { 'do' : 'make' }
 " Some support functions used by delimitmate, and snipmate
 Plug 'vim-scripts/tlib'
 
+" Denite resolves Unite's problems
+Plug 'Shougo/denite.nvim'
+
 " plugin for fuzzy file search, most recent files list and much more
 Plug 'Shougo/unite.vim'
+
+" This plugin provides a start screen for Vim and Neovim.
+" https://github.com/mhinz/vim-startify
+Plug 'mhinz/vim-startify'
 
 " Shorthand notation; fetches https://github.com/junegunn/vim-easy-align
 Plug 'junegunn/vim-easy-align'
@@ -562,11 +569,11 @@ set completeopt-=preview
 
 " setting up eslint csslint if available
 let g:syntastic_javascript_eslint_exec = 'eslint_d'
-let g:syntastic_css_csslint_exec= 'csslint'
+let g:syntastic_css_csslint_exec = 'csslint'
 
 " Enable autochecks
-let g:syntastic_check_on_open=1
-let g:syntastic_enable_signs=1
+let g:syntastic_check_on_open = 0
+let g:syntastic_enable_signs = 1
 
 " For correct works of next/previous error navigation
 let g:syntastic_always_populate_loc_list = 1
@@ -722,6 +729,7 @@ set fileformats=unix,dos,mac
 " ------------------------------
 " No fold enable
 set foldmethod=indent
+set foldlevelstart=20
 
 set showmatch
 set matchtime=0
