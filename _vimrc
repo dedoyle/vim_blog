@@ -183,14 +183,14 @@ Plug 'mitermayer/vim-prettier', {
 " I just enable it, with default config,
 " many false positive but still usefull
 Plug 'scrooloose/syntastic'
-" Install eslint_d and csslint for syntastic
+" Install eslint_d and stylelint for syntastic
 " TODO: Path to eslint_d if it not installed, then use local installation
 if isNpmInstalled
     if !executable('eslint_d')
         silent ! echo 'Installing eslint_d' && npm -g install eslint_d
     endif
-    if !executable('csslint')
-        silent ! echo 'Installing csslint' && npm -g install csslint
+    if !executable('stylelint')
+        silent ! echo 'Installing stylelint' && npm -g install stylelint
     endif
 endif
 
@@ -567,12 +567,12 @@ set completeopt-=preview
 " ------------------------------
 " Syntastic
 
-" setting up eslint csslint if available
+" setting up eslint stylelint if available
 let g:syntastic_javascript_eslint_exec = 'eslint_d'
-let g:syntastic_css_csslint_exec = 'csslint'
+let g:syntastic_css_stylelint_exec = 'stylelint'
 
 " Enable autochecks
-let g:syntastic_check_on_open = 0
+let g:syntastic_check_on_open = 1
 let g:syntastic_enable_signs = 1
 
 " For correct works of next/previous error navigation
@@ -702,6 +702,9 @@ set noshowcmd
 " Tab related
 set ts=4
 set sw=4
+
+" Turn off Vim's paging so there will be no ' More ' prompts
+set nomore
 
 " ------------------------------
 " Format related
