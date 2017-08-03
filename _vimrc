@@ -102,7 +102,7 @@ endif
 "
 
 " Check if npm installed
-let isNpmInstalled = executable("npm")
+let g:isNpmInstalled = executable('npm')
 
 " Specify a directory for Plugins
 if s:is_windows
@@ -158,9 +158,6 @@ Plug 'Shougo/neomru.vim'
 " Yank history for unite
 "Plug 'Shougo/neoyank.vim'
 
-" Tagbar
-"Plug 'majutsushi/tagbar'
-
 " Exporlorer
 Plug 'Shougo/vimfiler.vim'
 
@@ -178,19 +175,22 @@ Plug 'mitermayer/vim-prettier', {
             \ 'do': 'yarn install',
             \ 'for': ['javascript', 'typescript', 'css', 'less', 'scss'] }
 
-" Add code static check on write
-" need to be properly configured.
-" I just enable it, with default config,
-" many false positive but still usefull
-Plug 'scrooloose/syntastic'
-" Install eslint_d and stylelint for syntastic
-" TODO: Path to eslint_d if it not installed, then use local installation
-if isNpmInstalled
-    if !executable('eslint_d')
-        silent ! echo 'Installing eslint_d' && npm -g install eslint_d
+" ale
+Plug 'w0rp/ale'
+
+" TODO: Path to eslint if it not installed, then use local installation
+if g:isNpmInstalled
+    if !executable('eslint')
+        silent ! echo 'Installing eslint' && npm -g i eslint
+    endif
+    if !executable('jsonlint')
+        silent ! echo 'Installing jsonlint' && npm -g i jsonlint
     endif
     if !executable('stylelint')
-        silent ! echo 'Installing stylelint' && npm -g install stylelint
+        silent ! echo 'Installing stylelint' && npm -g i stylelint
+    endif
+    if !executable('htmlhint')
+        silent ! echo 'Installing htmlhint' && npm -g i htmlhint
     endif
 endif
 
@@ -215,7 +215,7 @@ Plug 'vim-airline/vim-airline' | Plug 'vim-airline/vim-airline-themes'
 " Front end Plugins
 "
 " Provide smart autocomplete results for javascript, and some usefull commands
-if isNpmInstalled
+if g:isNpmInstalled
     " install tern and node dependencies for tern
     Plug 'marijnh/tern_for_vim', { 'do': 'npm install', 'for': 'javascript' }
 endif
@@ -338,32 +338,6 @@ nnoremap <silent><leader>; :Unite -buffer-name=files -start-insert file_rec/asyn
 " Unite-grep
 nnoremap <silent><leader>/ :Unite -no-empty -no-quit -no-resize grep<CR>
 
-" Custom mappings for the unite buffer
-autocmd FileType unite call s:unite_settings()
-function! s:unite_settings()
-    " Play nice with supertab
-    let b:SuperTabDisabled=1
-    nmap <buffer> <ESC> <Plug>(unite_exit)
-    " Enable navigation with control-j and control-k in insert mode
-    imap <buffer> <C-j>   <Plug>(unite_select_next_line)
-    imap <buffer> <C-k>   <Plug>(unite_select_previous_line)
-
-
-    call unite#filters#matcher_default#use(['matcher_fuzzy'])
-    call unite#filters#sorter_default#use(['sorter_rank'])
-    call unite#custom_source('file_rec,file_rec/async,file_mru,file,buffer,grep',
-                \ 'ignore_pattern', join([
-                \ '\.git/',
-                \ '\.svn/',
-                \ '\.idea/',
-                \ 'tmp/',
-                \ 'node_modules/',
-                \ 'bower_components/',
-                \ 'build/',
-                \ '**/.min.*/',
-                \ ], '\|'))
-endfunction
-
 
 
 " ------------------------------
@@ -371,38 +345,6 @@ endfunction
 let g:airline_powerline_fonts = 1
 let g:airline_theme='wombat'
 
-" ------------------------------
-" Tagbar
-"let g:airline#extensions#tagbar#enabled = 1
-
-" ------------------------------
-" Prettier
-" Disable auto formatting of files that have @format tag
-let g:prettier#autoformat = 0
-
-" max line lengh that prettier will wrap on
-let g:prettier#config#print_width = 80
-
-" number of spaces per indentation level
-let g:prettier#config#tab_width = 4
-
-" use tabs over spaces
-let g:prettier#config#use_tabs = 'false'
-
-" print semicolons
-let g:prettier#config#semi = 'true'
-
-" single quotes over double quotes
-let g:prettier#config#single_quote = 'true'
-
-" none|es5|all
-let g:prettier#config#trailing_comma = 'none'
-
-nnoremap <silent><c-f> :Prettier<CR>
-
-" ------------------------------
-" Syntastic
-let g:airline#extensions#syntastic#enabled = 1
 " Tabline
 let g:airline#extensions#tabline#enabled=1
 " Display only filename in tab
@@ -438,11 +380,62 @@ nmap <leader>= <Plug>AirlineSelectNextTab
 " delete current windows
 nnoremap <silent> sq :<C-u>bd<CR>
 
+" ------------------------------
+" Tagbar
+"let g:airline#extensions#tagbar#enabled = 1
+
+" ------------------------------
+" Prettier
+" Disable auto formatting of files that have @format tag
+let g:prettier#autoformat = 0
+
+" max line lengh that prettier will wrap on
+let g:prettier#config#print_width = 80
+
+" number of spaces per indentation level
+let g:prettier#config#tab_width = 4
+
+" use tabs over spaces
+let g:prettier#config#use_tabs = 'false'
+
+" print semicolons
+let g:prettier#config#semi = 'true'
+
+" single quotes over double quotes
+let g:prettier#config#single_quote = 'true'
+
+" none|es5|all
+let g:prettier#config#trailing_comma = 'none'
+
+nnoremap <silent><c-f> :Prettier<CR>
+
+
+" ------------------------------
+" ale
+" show errors or warnings in airline
+let g:airline#extensions#ale#enabled = 1
+let g:ale_linters = {
+            \'javascript': ['eslint'],
+            \'json': ['jsonlint'],
+            \'css': ['stylelint'],
+            \'less': ['stylelint'],
+            \'html': ['htmlhint'],
+            \'vim': ['vint']
+            \}
+"let g:ale_fixers = {
+"            \'javascript': ['eslint'],
+"            \'css': ['stylelint']
+"            \}
+"
+"nmap <silent> ]] <Plug>(ale_previous_wrap)
+"nmap <silent> [[ <Plug>(ale_next_wrap)
+
 
 " ------------------------------
 " Vimfiler
 
 let g:vimfiler_as_default_explorer = 1
+
 call vimfiler#custom#profile('default', 'context', {
             \ 'explorer' : 1,
             \ 'winwidth' : 40,
@@ -480,9 +473,6 @@ if s:is_windows
     let g:unite_kind_file_use_trashbox = 1
 endif
 
-autocmd FileType vimfiler setlocal nonumber
-autocmd FileType vimfiler setlocal norelativenumber
-
 nnoremap <silent> <F3> :<C-u>VimFilerBufferDir -split -simple -no-quit<CR>
 
 " ------------------------------
@@ -519,9 +509,9 @@ function! CleverTab()
         return "\<C-n>"
     endif
     " If it's begining of the string then return just tab pressed
-    let substr = strpart(getline('.'), 0, col('.') - 1)
-    let substr = matchstr(substr, '[^ \t]*$')
-    if strlen(substr) == 0
+    let l:substr = strpart(getline('.'), 0, col('.') - 1)
+    let l:substr = matchstr(l:substr, '[^ \t]*$')
+    if strlen(l:substr) == 0
         " nothing to match on empty string
         return "\<Tab>"
     else
@@ -536,11 +526,6 @@ inoremap <expr><TAB> CleverTab()
 " Undo autocomplete (a little weird)
 inoremap <expr><C-e> neocomplcache#undo_completion()
 
-" Enable omni completion.
-autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
-autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
-
 " For cursor moving in insert mode
 inoremap <expr><Left>  neocomplcache#close_popup() . "\<Left>"
 inoremap <expr><Right> neocomplcache#close_popup() . "\<Right>"
@@ -549,93 +534,6 @@ inoremap <expr><Down>  neocomplcache#close_popup() . "\<Down>"
 
 " disable preview in code complete
 set completeopt-=preview
-
-" ------------------------------
-" Tagbar
-"let g:tagbar_left = 1
-"nmap <silent> <F2> :TagbarToggle<CR>
-
-" ------------------------------
-" Ctags
-"if s:is_windows
-"    let g:tagbar_ctags_bin = 'C:\ctags58\ctags.exe'
-"
-"    set tags=d:\tags
-"    "    map <C-F12> :!ctags -R -f d:\tags d:\wamp\www\static\javascripts\modules<CR>
-"endif
-
-" ------------------------------
-" Syntastic
-
-" setting up eslint stylelint if available
-let g:syntastic_javascript_eslint_exec = 'eslint_d'
-let g:syntastic_css_stylelint_exec = 'stylelint'
-
-" Enable autochecks
-let g:syntastic_check_on_open = 1
-let g:syntastic_enable_signs = 1
-
-" For correct works of next/previous error navigation
-let g:syntastic_always_populate_loc_list = 1
-
-" check json files with eslint
-let g:syntastic_filetype_map = { "json": "javascript", }
-
-let g:syntastic_javascript_checkers = ["eslint"]
-
-" open quicfix window with all error found
-nmap <silent> <leader>ll :Errors<cr>
-" previous syntastic error
-nmap <silent> [ :lprev<cr>
-" next syntastic error
-nmap <silent> ] :lnext<cr>
-
-" Set up the arrays to ignore for later
-"if !exists('g:syntastic_html_tidy_ignore_errors')
-"    let g:syntastic_html_tidy_ignore_errors = []
-"endif
-"
-"if !exists('g:syntastic_html_tidy_blocklevel_tags')
-"    let g:syntastic_html_tidy_blocklevel_tags = []
-"endif
-"
-"" Try to use HTML5 Tidy for better checking?
-"if s:is_linux
-"    let g:syntastic_html_tidy_exec = '/usr/local/bin/tidy5'
-"endif
-" AP: honestly can't remember if this helps or not
-" installed with homebrew locally
-
-" Ignore ionic tags in HTML syntax checking
-" See http://stackoverflow.com/questions/30366621
-" ignore errors about Ionic tags
-"let g:syntastic_html_tidy_ignore_errors += [
-"            \ "<ion-",
-"            \ "discarding unexpected </ion-"]
-"
-"" Angular's attributes confuse HTML Tidy
-"let g:syntastic_html_tidy_ignore_errors += [
-"            \ " proprietary attribute \"ng-"]
-"
-"" Angular UI-Router attributes confuse HTML Tidy
-"let g:syntastic_html_tidy_ignore_errors += [
-"            \ " proprietary attribute \"ui-sref"]
-
-" Angular in particular often makes 'empty' blocks, so ignore
-" this error. We might improve how we do this though.
-" See also https://github.com/scrooloose/syntastic/wiki/HTML:---tidy
-" specifically g:syntastic_html_tidy_empty_tags
-"let g:syntastic_html_tidy_ignore_errors += ["trimming empty "]
-
-" Angular ignores
-"let g:syntastic_html_tidy_blocklevel_tags += [
-"            \ 'ng-include',
-"            \ 'ng-form'
-"            \ ]
-"
-"" Angular UI-router ignores
-"let g:syntastic_html_tidy_ignore_errors += [
-"            \ " proprietary attribute \"ui-sref"]
 
 " ------------------------------
 " Tern_for_vim
@@ -725,9 +623,10 @@ set lazyredraw
 " ------------------------------
 
 " 设置新文件的<EOL>格式
-set fileformat=unix
+set fileformat=dos
 " 给出文件的<EOL>格式类型
-set fileformats=unix,dos,mac
+set fileformats=dos
+"set fileformats=unix,dos,mac
 
 " ------------------------------
 " No fold enable
@@ -803,8 +702,8 @@ vmap <Leader>P "+P
 " ------------------------------
 " Replace
 " type S, then type what you're looking for, a /, and what to replace it with
-nmap <c-r> :%s/<C-R><C-W>\>//gc<LEFT><LEFT><LEFT>
-vmap <c-r> :s/<C-R><C-W>\>//gc<LEFT><LEFT><LEFT>
+nmap S :%s/<C-R><C-W>\>//gc<LEFT><LEFT><LEFT>
+vmap S :%s/<C-R><C-W>\>//gc<LEFT><LEFT><LEFT>
 
 " ------------------------------
 " Auto reload changed files
@@ -922,13 +821,38 @@ set title
 " Mute error bell
 set novisualbell
 
+" --------------------------------------------------
+" Functions
+function! s:unite_settings()
+    " Play nice with supertab
+    let b:SuperTabDisabled=1
+    nmap <buffer> <ESC> <Plug>(unite_exit)
+    " Enable navigation with control-j and control-k in insert mode
+    imap <buffer> <C-j>   <Plug>(unite_select_next_line)
+    imap <buffer> <C-k>   <Plug>(unite_select_previous_line)
+
+
+    call unite#filters#matcher_default#use(['matcher_fuzzy'])
+    call unite#filters#sorter_default#use(['sorter_rank'])
+    call unite#custom_source('file_rec,file_rec/async,file_mru,file,buffer,grep',
+                \ 'ignore_pattern', join([
+                \ '\.git/',
+                \ '\.svn/',
+                \ '\.idea/',
+                \ 'tmp/',
+                \ 'node_modules/',
+                \ 'bower_components/',
+                \ 'build/',
+                \ '**/.min.*/',
+                \ ], '\|'))
+endfunction
 
 " --------------------------------------------------
 " Autocmd
 "
 " It executes specific command when specific events occured
 " like reading or writing file, or open or close buffer
-if has("autocmd")
+if has('autocmd')
     " Define group of commands,
     " Commands defined in .vimrc don't bind twice if .vimrc will reload
     augroup vimrc
@@ -936,7 +860,7 @@ if has("autocmd")
         au!
         if has('gui_running')
             " Maximize GVim window size
-            autocmd GUIEnter * simalt ~x
+            au GUIEnter * simalt ~x
         endif
 
         " automatically remove trailing whitespace before write
@@ -954,5 +878,18 @@ if has("autocmd")
 
         " Automatically change the current directory
         au BufEnter * silent! lcd %:p:h
+
+        au FileType html setl tw=0
+
+        " Enable omni completion.
+        au FileType css,less setlocal omnifunc=csscomplete#CompleteCSS
+        au FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+        au FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+
+        au FileType vimfiler setlocal nonumber
+        au FileType vimfiler setlocal norelativenumber
+
+        " Custom mappings for the unite buffer
+        au FileType unite call s:unite_settings()
     augroup END
 endif
