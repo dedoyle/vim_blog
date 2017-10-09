@@ -115,7 +115,6 @@ endif
 " ------------------------------
 " Mapleader
 noremap <Space> <Nop>
-let mapleader = "\<Space>"
 let g:mapleader = "\<Space>"
 
 " Make sure you use single quotes
@@ -197,6 +196,9 @@ endif
 " Toggle comment https://github.com/tomtom/tcomment_vim
 Plug 'tomtom/tcomment_vim'
 
+" Editor config plugin
+Plug 'editorconfig/editorconfig-vim'
+
 " Fix-up dot command behavior
 Plug 'tpope/vim-repeat'
 
@@ -248,6 +250,9 @@ Plug 'ap/vim-css-color',  { 'for': ['css', 'less'] }
 " Add support for taltoad/vim-jadeumarkdown
 Plug 'tpope/vim-markdown', { 'for': 'markdown' }
 
+" Add support for vue
+Plug 'posva/vim-vue', { 'for': 'vue' }
+
 
 " Initialize Plugin system
 call plug#end()
@@ -291,7 +296,7 @@ if executable('hw')
     " Use hw (highway)
     " https://github.com/tkengo/highway
     let g:unite_source_grep_command = 'hw'
-    let g:unite_source_grep_default_opts = '--no-group --no-color'
+    let g:unite_source_grep_default_opts = '-i --no-group --no-color'
     let g:unite_source_grep_recursive_opt = ''
 elseif executable('ag')
     " Use ag (the silver searcher)
@@ -307,7 +312,7 @@ elseif executable('pt')
     " Use pt (the platinum searcher)
     " https://github.com/monochromegane/the_platinum_searcher
     let g:unite_source_grep_command = 'pt'
-    let g:unite_source_grep_default_opts = '--nogroup --nocolor'
+    let g:unite_source_grep_default_opts = '-i --nogroup --nocolor'
     let g:unite_source_grep_recursive_opt = ''
 elseif executable('ack-grep')
     " Use ack
@@ -420,7 +425,6 @@ let g:ale_linters = {
             \'css': ['stylelint'],
             \'less': ['stylelint'],
             \'html': ['htmlhint'],
-            \'vim': ['vint']
             \}
 "let g:ale_fixers = {
 "            \'javascript': ['eslint'],
