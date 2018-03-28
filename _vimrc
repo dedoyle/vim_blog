@@ -21,7 +21,7 @@ if has('gui_running')
 
     if s:is_windows
         " please install the font in 'Dotfiles\font'
-        set guifont=DejaVu_Sans_Mono_for_Powerline:h11:cANSI:qDRAFT
+        set guifont=DejaVu_Sans_Mono_for_Powerline:h11:cANSI
     elseif s:is_osx
         set guifont=DejaVu\ Sans\ Mono\ for\ Powerline:h11
     else
@@ -182,6 +182,9 @@ if g:isNpmInstalled
     if !executable('eslint')
         silent ! echo 'Installing eslint' && npm -g i eslint
     endif
+    if !executable('prettier-eslint')
+        silent ! echo 'Installing prettier-eslint-cli' && npm -g i prettier-eslint-cli
+    endif
     if !executable('jsonlint')
         silent ! echo 'Installing jsonlint' && npm -g i jsonlint
     endif
@@ -213,6 +216,8 @@ Plug 'tpope/vim-repeat'
 
 " Nice statusline/ruler for vim
 Plug 'vim-airline/vim-airline' | Plug 'vim-airline/vim-airline-themes'
+
+Plug 'vim-scripts/LargeFile'
 
 " Front end Plugins
 "
@@ -292,41 +297,41 @@ let g:unite_source_rec_async_command =
             \ ['ag', '--follow', '--nocolor', '--nogroup',
             \  '--hidden', '-g', '']
 
-if executable('hw')
-    " Use hw (highway)
-    " https://github.com/tkengo/highway
-    let g:unite_source_grep_command = 'hw'
-    let g:unite_source_grep_default_opts = '-i --no-group --no-color'
-    let g:unite_source_grep_recursive_opt = ''
-elseif executable('ag')
-    " Use ag (the silver searcher)
-    " https://github.com/ggreer/the_silver_searcher
-    let g:unite_source_grep_command = 'ag'
-    let g:unite_source_grep_default_opts =
-                \ '-i --vimgrep --follow --line-numbers --nocolor ' .
-                \ '--nogroup --hidden --ignore ' .
-                \ '''.hg'' --ignore ''.svn'' --ignore ' .
-                \ '''.git'' --ignore ''**.min.*'''
-    let g:unite_source_grep_recursive_opt = ''
-elseif executable('pt')
-    " Use pt (the platinum searcher)
-    " https://github.com/monochromegane/the_platinum_searcher
-    let g:unite_source_grep_command = 'pt'
-    let g:unite_source_grep_default_opts = '-i --nogroup --nocolor'
-    let g:unite_source_grep_recursive_opt = ''
-elseif executable('ack-grep')
-    " Use ack
-    " http://beyondgrep.com/
-    let g:unite_source_grep_command = 'ack-grep'
-    let g:unite_source_grep_default_opts =
-                \ '-i --no-heading --no-color -k -H'
-    let g:unite_source_grep_recursive_opt = ''
-elseif executable('ack')
-    let g:unite_source_grep_command = 'ack'
-    let g:unite_source_grep_default_opts = '-i --no-heading' .
-                \ ' --no-color -k -H'
-    let g:unite_source_grep_recursive_opt = ''
-endif
+" if executable('hw')
+"     " Use hw (highway)
+"     " https://github.com/tkengo/highway
+"     let g:unite_source_grep_command = 'hw'
+"     let g:unite_source_grep_default_opts = '-i --no-group --no-color'
+"     let g:unite_source_grep_recursive_opt = ''
+" endif
+" Use ag (the silver searcher)
+" https://github.com/ggreer/the_silver_searcher
+let g:unite_source_grep_command = 'ag'
+let g:unite_source_grep_default_opts =
+            \ '-i --vimgrep --follow --line-numbers --nocolor ' .
+            \ '--nogroup --hidden --ignore ' .
+            \ '''.hg'' --ignore ''.svn'' --ignore ' .
+            \ '''.git'' --ignore ''**.min.*'''
+let g:unite_source_grep_recursive_opt = ''
+" elseif executable('pt')
+"     " Use pt (the platinum searcher)
+"     " https://github.com/monochromegane/the_platinum_searcher
+"     let g:unite_source_grep_command = 'pt'
+"     let g:unite_source_grep_default_opts = '-i --nogroup --nocolor'
+"     let g:unite_source_grep_recursive_opt = ''
+" elseif executable('ack-grep')
+"     " Use ack
+"     " http://beyondgrep.com/
+"     let g:unite_source_grep_command = 'ack-grep'
+"     let g:unite_source_grep_default_opts =
+"                 \ '-i --no-heading --no-color -k -H'
+"     let g:unite_source_grep_recursive_opt = ''
+" elseif executable('ack')
+"     let g:unite_source_grep_command = 'ack'
+"     let g:unite_source_grep_default_opts = '-i --no-heading' .
+"                 \ ' --no-color -k -H'
+"     let g:unite_source_grep_recursive_opt = ''
+" endif
 
 " Hotkey for open window with most recent files
 nnoremap <silent><leader>m :<C-u>Unite file_mru <CR>
@@ -392,18 +397,20 @@ nnoremap <silent> sq :<C-u>bd<CR>
 " ------------------------------
 " Prettier
 " Disable auto formatting of files that have @format tag
-let g:prettier#autoformat = 0
-
+"let g:prettier#autoformat = 0
+"
 " max line lengh that prettier will wrap on
 let g:prettier#config#print_width = 80
 
 " number of spaces per indentation level
+"let g:prettier#config#tab_width = 2
 let g:prettier#config#tab_width = 4
 
 " use tabs over spaces
 let g:prettier#config#use_tabs = 'false'
 
 " print semicolons
+"let g:prettier#config#semi = 'false'
 let g:prettier#config#semi = 'true'
 
 " single quotes over double quotes
@@ -411,8 +418,6 @@ let g:prettier#config#single_quote = 'true'
 
 " none|es5|all
 let g:prettier#config#trailing_comma = 'none'
-
-nnoremap <silent><c-f> :Prettier<CR>
 
 
 " ------------------------------
@@ -431,8 +436,8 @@ let g:ale_linters = {
 "            \'css': ['stylelint']
 "            \}
 "
-"nmap <silent> ]] <Plug>(ale_previous_wrap)
-"nmap <silent> [[ <Plug>(ale_next_wrap)
+nmap <silent> ]] <Plug>(ale_previous_wrap)
+nmap <silent> [[ <Plug>(ale_next_wrap)
 
 
 " ------------------------------
@@ -593,33 +598,30 @@ let g:vim_markdown_folding_disabled = 1
 set relativenumber
 set number
 
-" set fillchar
+" set fill char
 hi VertSplit ctermbg=NONE guibg=NONE
 set fillchars+=vert:│
 
 " hide cmd
 set noshowcmd
 
-
-" Tab related
-set ts=4
-set sw=4
-
 " Turn off Vim's paging so there will be no ' More ' prompts
 set nomore
+
+"set spell spelllang=en_us,cjk
 
 " ------------------------------
 " Format related
 " auto break at column 78
-set tw=78
+set textwidth=78
 
 " not break word
-set lbr
+set linebreak
 
 " support Asian language
 " m: can break between two Chinese word
 " B: not padding space between two Chinese word when concating two line
-set fo+=mB
+set formatoptions+=mB
 
 " Don't redraw while executing macros (good performance config)
 set lazyredraw
@@ -682,11 +684,11 @@ set showmatch
 " ------------------------------
 " Tab
 " Indent 4 space
-set sw=4
+set shiftwidth=4
 " Set the width of tab to 4 space
-set ts=4
+set tabstop=4
 " Replace tab with space
-set et
+set expandtab
 " Backspace delete 4 space
 set smarttab
 
@@ -736,7 +738,7 @@ set wildignorecase
 map 0 ^
 
 " Set 7 lines to the cursor
-set so=7
+set scrolloff=7
 
 " Hightlighting that moves with the cursor
 set cursorline
@@ -874,7 +876,7 @@ if has('autocmd')
         :au FocusLost * :wa
 
         " Auto reload vim after your cahange it
-        au Bufwritepost $MYVIMRC nested source $MYVIMRC | AirlineRefresh
+        " au! Bufwritepost $MYVIMRC nested source $MYVIMRC
 
         " Return to last edit position when opening files (You want this!)
         au BufReadPost * if line("'\"") > 1 && line("'\"")
@@ -892,6 +894,9 @@ if has('autocmd')
 
         au FileType vimfiler setlocal nonumber
         au FileType vimfiler setlocal norelativenumber
+
+        au FileType javascript,css,less nnoremap <silent><c-f> :Prettier<CR>
+        " au FileType html,markdown  nnoremap <silent><c-f> gg=G
 
         " Custom mappings for the unite buffer
         au FileType unite call s:unite_settings()

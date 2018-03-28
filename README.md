@@ -21,6 +21,10 @@ It includes a ton of useful plugins, color schemes and configurations.
 
 [vimproc\_win64(32).dll](https://github.com/Shougo/vimproc.vim/releases): vimporc needs this, NECESSARY
 
+[ag](https://github.com/ggreer/the_silver_searcher): A code searching tool similar to ack, with a focus on speed.
+
+[curl](./install_curl.md): Curl命令可以通过命令行的方式，执行Http请求
+
 
 ### Check prerequisites
 1. git --version
@@ -39,6 +43,10 @@ The correct result:
 4. Gvim
 The correct result:
 > Opened a program
+
+5. curl --help
+The correct result:
+> get help of curl
 
 ### Start to install
 
