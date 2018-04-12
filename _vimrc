@@ -166,8 +166,8 @@ Plug 'mbbill/undotree'
 " The silver searcher
 Plug 'rking/ag.vim'
 
-" Vim colorschemes https://github.com/flazz/vim-colorschemes
-Plug 'flazz/vim-colorschemes'
+" colorschemes
+Plug 'mkarmona/colorsbox'
 
 " prettier https://github.com/mitermayer/vim-prettier
 Plug 'mitermayer/vim-prettier', {
@@ -308,8 +308,8 @@ let g:unite_source_rec_async_command =
 " https://github.com/ggreer/the_silver_searcher
 let g:unite_source_grep_command = 'ag'
 let g:unite_source_grep_default_opts =
-            \ '-i --vimgrep --follow --line-numbers --nocolor ' .
-            \ '--nogroup --hidden --ignore ' .
+            \ '-i --vimgrep -f --numbers --nocolor ' .
+            \ '--nogroup --ignore ' .
             \ '''.hg'' --ignore ''.svn'' --ignore ' .
             \ '''.git'' --ignore ''**.min.*'''
 let g:unite_source_grep_recursive_opt = ''
@@ -483,6 +483,11 @@ if s:is_windows
 endif
 
 nnoremap <silent> <F3> :<C-u>VimFilerBufferDir -split -simple -no-quit<CR>
+
+
+" ------------------------------
+"  Startify
+map <leader>s :SSave<CR>
 
 " ------------------------------
 "  Undo Tree
@@ -803,8 +808,9 @@ set nowritebackup
 " --------------------------------------------------
 " Theme
 "
+syntax enable
 set background=dark
-colorscheme materialbox
+colorscheme colorsbox-stbright
 
 " Ignore compiled files
 set wildignore=*.o,*~,*.pyc

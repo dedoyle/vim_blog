@@ -2,7 +2,7 @@
 
 This configuration is well suited for the front-end development.
 And can be used on Windows and Linux.
-It includes a ton of useful plugins, color schemes and configurations.
+It includes a ton of useful plugins, color scheme and configurations.
 
 
 ## Install on Windows
